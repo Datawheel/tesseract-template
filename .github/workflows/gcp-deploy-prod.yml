@@ -1,0 +1,79 @@
+# github actions workflow used for deploying a new tesseract instance on gcp triggered by a specific release of the github repository
+name: Deploy a Docker Image of Tesseract on GCP [Prod]
+
+# trigger the workflow when a release is made on the repository
+on:
+  release:
+    types: [created]
+
+# environment variables used on the respective workflow
+env:
+  # docker variables
+  ARTIFACT_REGISTRY_NAME: tesseract-template-repo
+  IMAGE_NAME: tesseract-template-image
+  # google cloud platform credentials (they come from github secrets)
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  # tesseract-olap environment variables
+  TESSERACT_DEBUG: false
+  TESSERACT_RUST_LOG: info
+  TESSERACT_SERVICE_NAME: tesseract-template-service-prod
+
+jobs:
+  # deploys the tagged release via google cloude build
+  deploy:
+    name: Deploy Docker Image to Cloud Run
+    runs-on: ubuntu-latest
+    environment: production_environment
+    steps:
+      - name: Get release version number
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Tag latest Docker image with release version
+        run: |-
+          gcloud artifacts docker tags add \
+            us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_NAME/$IMAGE_NAME:latest-dev \
+            us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_NAME/$IMAGE_NAME:${{ steps.get_version.outputs.VERSION }} \
+            --quiet
+
+      - name: Deploy Image to Cloud Run
+        run: |-
+          gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
+            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.ARTIFACT_REGISTRY_NAME}}/${{env.IMAGE_NAME}}:${{ steps.get_version.outputs.VERSION }} \
+            --region=us-central1
+        env:
+          TESSERACT_DATABASE_URL: ${{secrets.TESSERACT_DATABASE_URL}}
+          TESSERACT_DEBUG: ${{env.TESSERACT_DEBUG}}
+          RUST_LOG: ${{env.TESSERACT_RUST_LOG}}
+
+  # remove old images storages on gcp
+  prune:
+    needs: deploy
+    name: Remove old Docker Images on Cloud Run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Make executable
+        run: chmod +x ./.github/scripts/prune-old-images.sh
+
+      - name: Run prune script
+        run: sh ./.github/scripts/prune-old-images.sh
+        env:
+          IMAGE_PATH: us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.ARTIFACT_REGISTRY_NAME}}/${{env.IMAGE_NAME}}

@@ -1,0 +1,74 @@
+# github actions workflow used for building a new docker image of tesseract-olap cube when there is a push maked to the develop branch 
+# with detected changes on the schema.xml file or the Dockerfile. after the building it's compleated, the workflow deploys that image 
+# on a GOOGLE CLOUD RUN instance with the respective keys storaged on the github secrets from the repository page.
+name: Build and Deploy a Docker Image of Tesseract on GCP [Dev]
+
+# trigger the workflow when a push is made on the develop branch
+on:
+  push:
+    # only trigger a new build and deploy on schema.xml change or Dockerfile change
+    paths:
+      - 'schema.xml'
+      - 'Dockerfile'
+    branches:
+      - develop 
+
+# environment variables used on the respective workflow
+env:
+  # docker variables
+  ARTIFACT_REGISTRY_NAME: tesseract-template-repo
+  IMAGE_NAME: tesseract-template-image
+  # google cloud platform credentials (they come from github secrets)
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  # tesseract-olap environment variables
+  TESSERACT_DEBUG: true
+  TESSERACT_RUST_LOG: debug
+  TESSERACT_SERVICE_NAME: tesseract-template-service-dev
+
+jobs:
+  # builds the new docker image via google cloude build
+  build:
+    name: Build Docker Image via Cloud Build
+    runs-on: ubuntu-latest
+    environment: develop_environment
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Build Docker Image
+        run: |-
+          gcloud builds submit \
+            --quiet \
+            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_NAME/$IMAGE_NAME:latest-dev
+
+  # deploys the recently created docker image via google cloude build
+  deploy:
+    needs: build
+    name: Deploy Docker Image to Cloud Run
+    runs-on: ubuntu-latest
+    environment: develop_environment
+    steps:
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+      
+      - name: Deploy Image to Cloud Run
+        run: |-
+          gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
+            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.ARTIFACT_REGISTRY_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
+            --region=us-central1
+        env:
+          TESSERACT_DATABASE_URL: ${{secrets.TESSERACT_DATABASE_URL}}
+          TESSERACT_DEBUG: ${{env.TESSERACT_DEBUG}}
+          RUST_LOG: ${{env.TESSERACT_RUST_LOG}}
