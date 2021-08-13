@@ -11,13 +11,13 @@ env:
   # docker variables
   IMAGE_NAME: tesseract-template-image
   # google cloud platform credentials (they come from github secrets)
-  GCP_ARTIFACT_REGISTRY_REPO_NAME: tesseract-template-repo
+  GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   # tesseract-olap environment variables
   TESSERACT_DEBUG: false
   TESSERACT_RUST_LOG: info
-  TESSERACT_SERVICE_NAME: tesseract-template-service-prod
+  TESSERACT_SERVICE_NAME: tesseract-olap-prod
 
 jobs:
   # deploys the tagged release via google cloude build
@@ -48,11 +48,14 @@ jobs:
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:${{ steps.get_version.outputs.VERSION }} \
-            --region=us-central1
-        env:
-          TESSERACT_DATABASE_URL: ${{secrets.TESSERACT_DATABASE_URL}}
-          TESSERACT_DEBUG: ${{env.TESSERACT_DEBUG}}
-          RUST_LOG: ${{env.TESSERACT_RUST_LOG}}
+            --region=us-central1 \
+            --port=7777 \
+            --min-instances=1 \
+            --max-instances=4 \
+            --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
+            --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
+            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
+            --allow-unauthenticated 
 
   # remove old images storages on gcp
   prune:
