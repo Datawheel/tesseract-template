@@ -19,9 +19,9 @@ on:
 # environment variables used on the respective workflow
 env:
   # docker variables
-  ARTIFACT_REGISTRY_NAME: tesseract-template-repo
   IMAGE_NAME: tesseract-ui-${{ github.event.inputs.env }}
   # google cloud platform credentials (they come from github secrets)
+  GCP_ARTIFACT_REGISTRY_REPO_NAME: tesseract-template-repo
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   # tesseract-ui environment variables
@@ -54,7 +54,7 @@ jobs:
             && ./create-cloud-build.sh \
               ${{ env.TESSERACT_URL }} \
               ${{ env.GCP_PROJECT_ID }} \
-              ${{ env.ARTIFACT_REGISTRY_NAME }} \
+              ${{ env.GCP_ARTIFACT_REGISTRY_REPO_NAME }} \
               ${{ env.IMAGE_NAME }} \
               > cloudbuild.yml
 
@@ -68,7 +68,7 @@ jobs:
       - name: Deploy Image to Cloud Run
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
-            --image=us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_NAME }}/${{ env.IMAGE_NAME }} \
+            --image=us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_REPO_NAME }}/${{ env.IMAGE_NAME }} \
             --port=80 \
             --allow-unauthenticated \
             --region=us-central1

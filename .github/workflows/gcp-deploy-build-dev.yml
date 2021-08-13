@@ -16,9 +16,9 @@ on:
 # environment variables used on the respective workflow
 env:
   # docker variables
-  ARTIFACT_REGISTRY_NAME: tesseract-template-repo
   IMAGE_NAME: tesseract-template-image
   # google cloud platform credentials (they come from github secrets)
+  GCP_ARTIFACT_REGISTRY_REPO_NAME: tesseract-template-repo
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   # tesseract-olap environment variables
@@ -47,7 +47,7 @@ jobs:
         run: |-
           gcloud builds submit \
             --quiet \
-            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_NAME/$IMAGE_NAME:latest-dev
+            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:latest-dev
 
   # deploys the recently created docker image via google cloude build
   deploy:
@@ -66,7 +66,7 @@ jobs:
       - name: Deploy Image to Cloud Run
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
-            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.ARTIFACT_REGISTRY_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
+            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
             --region=us-central1
         env:
           TESSERACT_DATABASE_URL: ${{secrets.TESSERACT_DATABASE_URL}}
