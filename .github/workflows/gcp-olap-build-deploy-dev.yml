@@ -1,17 +1,14 @@
 # github actions workflow used for building a new docker image of tesseract-olap cube when there is a push maked to the develop branch 
 # with detected changes on the schema.xml file or the Dockerfile. after the building it's compleated, the workflow deploys that image 
 # on a GOOGLE CLOUD RUN instance with the respective keys storaged on the github secrets from the repository page.
-name: Build and Deploy a Docker Image of Tesseract on GCP [Dev]
+name: "[GCP] Build and Deploy Tesseract-Olap Image"
 
-# trigger the workflow when a push is made on the develop branch
+# trigger the workflow when a pull request is accepted and merged on to the develop branch
 on:
-  push:
-    # only trigger a new build and deploy on schema.xml change or Dockerfile change
-    paths:
-      - 'schema.xml'
-      - 'Dockerfile'
+  pull_request:
     branches:
       - develop 
+    types: [closed]
 
 # environment variables used on the respective workflow
 env:
@@ -69,9 +66,9 @@ jobs:
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
             --region=us-central1 \
             --port=7777 \
-            --min-instances=1 \
-            --max-instances=4 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --allow-unauthenticated \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
-            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
-            --allow-unauthenticated 
+            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} 
