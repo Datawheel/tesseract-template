@@ -1,5 +1,5 @@
 # github actions workflow used for deploying a new tesseract instance on gcp triggered by a specific release of the github repository
-name: Deploy a Docker Image of Tesseract on GCP [Prod]
+name: "[GCP] Deploy Tesseract-Olap Image to Prod"
 
 # trigger the workflow when a release is made on the repository
 on:
@@ -50,12 +50,12 @@ jobs:
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:${{ steps.get_version.outputs.VERSION }} \
             --region=us-central1 \
             --port=7777 \
-            --min-instances=1 \
-            --max-instances=4 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --allow-unauthenticated \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
-            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
-            --allow-unauthenticated 
+            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} 
 
   # remove old images storages on gcp
   prune:
