@@ -3,14 +3,14 @@
 
         <Table name="gdp_fact"/>
 
-        <Dimension name="Country NICO TESTING 3" foreign_key="country_id">
+        <Dimension name="Country NICO TESTING" foreign_key="country_id">
             <Hierarchy name="Country" primary_key="country_id">
                 <Table name="dim_country"/>
                 <Level name="Country" key_column="country_id" name_column="country_name" key_type="nontext"/>
             </Hierarchy>
         </Dimension>
 
-        <Dimension name="Year" foreign_key="year">
+        <Dimension name="Year NICO TESTING" foreign_key="year">
             <Hierarchy name="Year" primary_key="year">
                 <Level name="Year" key_column="year" key_type="nontext"/>
             </Hierarchy>
