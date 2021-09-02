@@ -3,7 +3,7 @@
 
         <Table name="gdp_fact"/>
 
-        <Dimension name="Country NICO TESTING 3" foreign_key="country_id">
+        <Dimension name="Country NICO TESTING 5" foreign_key="country_id">
             <Hierarchy name="Country" primary_key="country_id">
                 <Table name="dim_country"/>
                 <Level name="Country" key_column="country_id" name_column="country_name" key_type="nontext"/>
