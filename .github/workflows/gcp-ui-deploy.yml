@@ -25,7 +25,7 @@ env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   # tesseract-ui environment variables
-  TESSERACT_SERVICE_NAME: tesseract-ui-${{ github.event.inputs.env }}
+  TESSERACT_SERVICE_NAME: tesseract-template-ui-${{ github.event.inputs.env }}
   TESSERACT_URL: ${{ github.event.inputs.tesseract-url }}
 
 jobs:

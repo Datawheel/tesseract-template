@@ -1,5 +1,2 @@
-.github
-*.md
-*.env
 *.gcp.json
 *.gcp.encoded
