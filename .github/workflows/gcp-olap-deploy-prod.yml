@@ -17,7 +17,7 @@ env:
   # tesseract-olap environment variables
   TESSERACT_DEBUG: false
   TESSERACT_RUST_LOG: info
-  TESSERACT_SERVICE_NAME: tesseract-olap-prod
+  TESSERACT_SERVICE_NAME: tesseract-template-olap-prod
 
 jobs:
   # deploys the tagged release via google cloude build
