@@ -21,7 +21,7 @@ env:
   # tesseract-olap environment variables
   TESSERACT_DEBUG: true
   TESSERACT_RUST_LOG: debug
-  TESSERACT_SERVICE_NAME: tesseract-olap-dev
+  TESSERACT_SERVICE_NAME: tesseract-template-olap-dev
 
 jobs:
   # builds the new docker image via google cloude build
