@@ -1,5 +1,5 @@
 # github actions workflow used for deploying a new tesseract-ui instance on gcp triggered by a user interface on github actions
-name: Deploy a Docker Image of Tesseract UI on GCP
+name: "[GCP] Deploy Tesseract-UI Image"
 
 # trigger the workflow when the user interface on github actions is triggered
 on:
