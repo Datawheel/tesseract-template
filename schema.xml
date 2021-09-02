@@ -10,7 +10,7 @@
             </Hierarchy>
         </Dimension>
 
-        <Dimension name="Year" foreign_key="year">
+        <Dimension name="Year NICO TESTING" foreign_key="year">
             <Hierarchy name="Year" primary_key="year">
                 <Level name="Year" key_column="year" key_type="nontext"/>
             </Hierarchy>
