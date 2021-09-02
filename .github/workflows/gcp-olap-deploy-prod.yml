@@ -52,10 +52,10 @@ jobs:
             --port=7777 \
             --min-instances=0 \
             --max-instances=2 \
-            --allow-unauthenticated \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
-            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} 
+            --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
+            --allow-unauthenticated 
 
   # remove old images storages on gcp
   prune:

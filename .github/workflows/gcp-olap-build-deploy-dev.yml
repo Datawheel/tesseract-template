@@ -66,8 +66,8 @@ jobs:
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
             --region=us-central1 \
             --port=7777 \
-            --min-instances=1 \
-            --max-instances=4 \
+            --min-instances=0 \
+            --max-instances=2 \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
             --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
