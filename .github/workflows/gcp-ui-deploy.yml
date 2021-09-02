@@ -19,7 +19,7 @@ on:
 # environment variables used on the respective workflow
 env:
   # docker variables
-  IMAGE_NAME: tesseract-ui-${{ github.event.inputs.env }}
+  IMAGE_NAME: tesseract-template-ui-${{ github.event.inputs.env }}
   # google cloud platform credentials (they come from github secrets)
   GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
