@@ -1,5 +1,5 @@
 # github actions workflow used for deploying a new tesseract instance on gcp triggered by a specific release of the github repository
-name: "[GCP] Deploy Tesseract-OLAP on Production"
+name: "[GCP] Deploy Tesseract-OLAP on PROD"
 
 # trigger the workflow when a release is made on the repository
 on:
