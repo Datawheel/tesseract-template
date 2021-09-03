@@ -1,16 +1,17 @@
 # github actions workflow used for building a new docker image of tesseract-olap cube when there is a push maked to the develop branch 
 # with detected changes on the schema.xml file or the Dockerfile. after the building it's compleated, the workflow deploys that image 
 # on a GOOGLE CLOUD RUN instance with the respective keys storaged on the github secrets from the repository page.
-name: "[GCP] Build and Deploy Tesseract-OLAP on DEV"
+name: "[GCP] Build and Deploy Tesseract-OLAP for PR Review"
 
 # trigger the workflow when a push is made on the develop branch
 on:
-  push:
-    branches:
-      - develop 
+  pull-request:
+    types: [review_requested]
 
 # environment variables used on the respective workflow
 env:
+  # pull request variables
+  BRANCH_NAME: ${{ github.payload.pull_request.head.ref }}
   # docker variables
   IMAGE_NAME: tesseract-image
   # google cloud platform credentials (they come from github secrets)
@@ -43,7 +44,7 @@ jobs:
         run: |-
           gcloud builds submit \
             --quiet \
-            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:latest-dev
+            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:$BRANCH_NAME
 
   # deploys the recently created docker image via google cloude build
   deploy:
@@ -62,7 +63,7 @@ jobs:
       - name: Deploy Image to Cloud Run
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
-            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
+            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:$BRANCH_NAME \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
             --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \

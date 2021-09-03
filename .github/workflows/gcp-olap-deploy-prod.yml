@@ -1,5 +1,5 @@
 # github actions workflow used for deploying a new tesseract instance on gcp triggered by a specific release of the github repository
-name: "[GCP] Deploy Tesseract-Olap Image to Prod"
+name: "[GCP] Deploy Tesseract-OLAP on PROD"
 
 # trigger the workflow when a release is made on the repository
 on:
@@ -9,7 +9,7 @@ on:
 # environment variables used on the respective workflow
 env:
   # docker variables
-  IMAGE_NAME: tesseract-template-image
+  IMAGE_NAME: tesseract-image
   # google cloud platform credentials (they come from github secrets)
   GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -17,7 +17,7 @@ env:
   # tesseract-olap environment variables
   TESSERACT_DEBUG: false
   TESSERACT_RUST_LOG: info
-  TESSERACT_SERVICE_NAME: tesseract-template-olap-prod
+  TESSERACT_SERVICE_NAME: tesseract-olap-prod
 
 jobs:
   # deploys the tagged release via google cloude build
