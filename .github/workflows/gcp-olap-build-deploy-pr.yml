@@ -5,7 +5,9 @@ name: "[GCP] Build and Deploy Tesseract-OLAP for PR Review"
 
 # trigger the workflow when a push is made on the develop branch
 on:
-  pull-request:
+  pull_request:
+    branches:
+      - develop
     types: [review_requested]
 
 # environment variables used on the respective workflow
@@ -13,7 +15,7 @@ env:
   # pull request variables
   BRANCH_NAME: ${{ github.payload.pull_request.head.ref }}
   # docker variables
-  IMAGE_NAME: tesseract-image
+  IMAGE_NAME: tesseract-image-${{ github.payload.pull_request.head.ref }}
   # google cloud platform credentials (they come from github secrets)
   GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -21,12 +23,12 @@ env:
   # tesseract-olap environment variables
   TESSERACT_DEBUG: true
   TESSERACT_RUST_LOG: debug
-  TESSERACT_SERVICE_NAME: tesseract-olap-dev
+  TESSERACT_SERVICE_NAME: tesseract-olap-${{ github.payload.pull_request.head.ref }}
 
 jobs:
   # builds the new docker image via google cloude build
-  build:
-    name: Build Docker Image via Cloud Build
+  pr-build:
+    name: Build PR Image via Cloud Build
     runs-on: ubuntu-latest
     environment: develop_environment
     steps:
@@ -47,9 +49,9 @@ jobs:
             --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:$BRANCH_NAME
 
   # deploys the recently created docker image via google cloude build
-  deploy:
-    needs: build
-    name: Deploy Docker Image to Cloud Run
+  pr-deploy:
+    needs: pr-build
+    name: Deploy PR Image to Cloud Run
     runs-on: ubuntu-latest
     environment: develop_environment
     steps:

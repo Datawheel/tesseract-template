@@ -7,7 +7,7 @@ name: "[GCP] Build and Deploy Tesseract-OLAP on DEV"
 on:
   push:
     branches:
-      - develop 
+      - develop
 
 # environment variables used on the respective workflow
 env:
