@@ -1,5 +1,5 @@
 # github actions workflow used for deploying a new tesseract-ui instance on gcp triggered by a user interface on github actions
-name: "[GCP] Deploy Tesseract-UI Image"
+name: "[GCP] Deploy Tesseract-UI Instance"
 
 # trigger the workflow when the user interface on github actions is triggered
 on:
@@ -19,13 +19,13 @@ on:
 # environment variables used on the respective workflow
 env:
   # docker variables
-  IMAGE_NAME: tesseract-template-ui-${{ github.event.inputs.env }}
+  IMAGE_NAME: tesseract-ui-${{ github.event.inputs.env }}
   # google cloud platform credentials (they come from github secrets)
   GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   # tesseract-ui environment variables
-  TESSERACT_SERVICE_NAME: tesseract-template-ui-${{ github.event.inputs.env }}
+  TESSERACT_SERVICE_NAME: tesseract-ui-${{ github.event.inputs.env }}
   TESSERACT_URL: ${{ github.event.inputs.tesseract-url }}
 
 jobs:

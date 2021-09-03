@@ -1,19 +1,18 @@
 # github actions workflow used for building a new docker image of tesseract-olap cube when there is a push maked to the develop branch 
 # with detected changes on the schema.xml file or the Dockerfile. after the building it's compleated, the workflow deploys that image 
 # on a GOOGLE CLOUD RUN instance with the respective keys storaged on the github secrets from the repository page.
-name: "[GCP] Build and Deploy Tesseract-Olap Image"
+name: "[GCP] Build and Deploy Tesseract-OLAP"
 
-# trigger the workflow when a pull request is accepted and merged on to the develop branch
+# trigger the workflow when a push is made on the develop branch
 on:
-  pull_request:
+  push:
     branches:
       - develop 
-    types: [closed]
 
 # environment variables used on the respective workflow
 env:
   # docker variables
-  IMAGE_NAME: tesseract-template-image
+  IMAGE_NAME: tesseract-image
   # google cloud platform credentials (they come from github secrets)
   GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -21,7 +20,7 @@ env:
   # tesseract-olap environment variables
   TESSERACT_DEBUG: true
   TESSERACT_RUST_LOG: debug
-  TESSERACT_SERVICE_NAME: tesseract-template-olap-dev
+  TESSERACT_SERVICE_NAME: tesseract-olap-dev
 
 jobs:
   # builds the new docker image via google cloude build
@@ -64,12 +63,12 @@ jobs:
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
-            --region=us-central1 \
-            --port=7777 \
-            --min-instances=0 \
-            --max-instances=2 \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
             --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
+            --region=us-central1 \
+            --port=7777 \
             --allow-unauthenticated \
+            --max-instances=4 \
+            --min-instances=1 \
             --quiet 
