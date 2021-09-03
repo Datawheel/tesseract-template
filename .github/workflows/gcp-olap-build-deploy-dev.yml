@@ -71,4 +71,5 @@ jobs:
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
             --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
-            --allow-unauthenticated 
+            --allow-unauthenticated \
+            --quiet 
