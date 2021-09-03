@@ -66,12 +66,11 @@ jobs:
         run: |-
           gcloud run deploy ${{ env.TESSERACT_SERVICE_NAME }} \
             --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:$BRANCH_NAME \
+            --region=us-central1 \
+            --port=7777 \
+            --min-instances=1 \
+            --max-instances=4 \
             --set-env-vars=TESSERACT_DATABASE_URL=${{secrets.TESSERACT_DATABASE_URL}} \
             --set-env-vars=TESSERACT_DEBUG=${{env.TESSERACT_DEBUG}} \
             --set-env-vars=RUST_LOG=${{env.TESSERACT_RUST_LOG}} \
-            --region=us-central1 \
-            --port=7777 \
-            --allow-unauthenticated \
-            --max-instances=4 \
-            --min-instances=1 \
-            --quiet 
+            --allow-unauthenticated 
