@@ -17,7 +17,6 @@ If you are using node directly to develop, please recall your typical `.env` fil
   - NO ENV VARS AT BUILDTIME: `docker build -t <PROJECT_NAME>-tesseract-api .`
   - WITH ENV VARS AT BUILDTIME: `docker build --build-arg <ENV_NAME>=<ENV_VALUE> -t <PROJECT_NAME>-tesseract-api .`
 3. Run your container: 
-  - NO ENV VARS AT RUNTIME: `docker run -p 7777:7777 <PROJECT_NAME>-tesseract-api`
   - ``` 
     docker run \
       -p 7777:7777 \
