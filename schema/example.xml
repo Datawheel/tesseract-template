@@ -6,11 +6,9 @@
         <Dimension name="Time" foreign_key="time_id" type="time">
 
             <Hierarchy name="Time">
-
-                <Level name="Time" key_column="time_id">
-                    <LocalizedAttr attr="name_column" locale="en" value="time" />
-                </Level>
-
+                
+                <Level name="Time" key_column="time_id" />
+            
             </Hierarchy>
         </Dimension>
 
@@ -27,15 +25,18 @@
                 <Level name="ISIC Level 2" key_column="isic_level2_id">
                     <LocalizedAttr attr="name_column" locale="en" value="isic_level2_desc" />
                 </Level>
+            
             </Hierarchy>
-
         </Dimension>
 
         <Dimension name="Size" foreign_key="size_id">
+           
             <Hierarchy name="Size">
 
+                <Table name="dim_size" />
+                
                 <Level name="Size" key_column="size_id">
-                    <LocalizedAttr attr="name_column" locale="en" value="size_id" />
+                    <LocalizedAttr attr="name_column" locale="en" value="size" />
                 </Level>
             
             </Hierarchy>
