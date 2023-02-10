@@ -3,7 +3,16 @@
     <Cube name="gosi_avg_age">
         <Table name="gosi_avg_age" primary_key="time_id" />
 
-        <Dimension name="Time" foreign_key="time_id" type="time"/>
+        <Dimension name="Time" foreign_key="time_id" type="time">
+
+            <Hierarchy name="Time">
+
+                <Level name="Time" key_column="time_id">
+                    <LocalizedAttr attr="name_column" locale="en" value="time" />
+                </Level>
+
+            </Hierarchy>
+        </Dimension>
 
         <Dimension name="Sector" foreign_key="isic_level2_id">
 
@@ -23,14 +32,17 @@
         </Dimension>
 
         <Dimension name="Size" foreign_key="size_id">
+            <Hierarchy name="Size">
 
-            <Level name="Size" key_column="size_id">
-                <LocalizedAttr attr="name_column" locale="en" value="size" />
-            </Level>
-
+                <Level name="Size" key_column="size_id">
+                    <LocalizedAttr attr="name_column" locale="en" value="size_id" />
+                </Level>
+            
+            </Hierarchy>
         </Dimension>
 
         <Measure name="Avg Age" key_column="avg_age" aggregator="sum"/>
 
     </Cube>
 </Schema>
+
