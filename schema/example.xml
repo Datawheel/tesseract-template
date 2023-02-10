@@ -1,0 +1,36 @@
+<Schema name="monshaat" default_locale="en">
+
+    <Cube name="gosi_avg_age">
+        <Table name="gosi_avg_age" primary_key="time_id" />
+
+        <Dimension name="Time" foreign_key="time_id" type="time"/>
+
+        <Dimension name="Sector" foreign_key="isic_level2_id">
+
+            <Hierarchy name="ISIC">
+
+                <Table name="dim_isic" />
+
+                <Level name="ISIC Level 1" key_column="isic_level1_id">
+                    <LocalizedAttr attr="name_column" locale="en" value="isic_level1_desc" />
+                </Level>
+
+                <Level name="ISIC Level 2" key_column="isic_level2_id">
+                    <LocalizedAttr attr="name_column" locale="en" value="isic_level2_desc" />
+                </Level>
+            </Hierarchy>
+
+        </Dimension>
+
+        <Dimension name="Size" foreign_key="size_id">
+
+            <Level name="Size" key_column="size_id">
+                <LocalizedAttr attr="name_column" locale="en" value="size" />
+            </Level>
+
+        </Dimension>
+
+        <Measure name="Avg Age" key_column="avg_age" aggregator="sum"/>
+
+    </Cube>
+</Schema>

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "tesseract-olap-demo"
+version = "0.1.5"
+description = ""
+authors = ["Francisco Abarzua <git.id@frabarz.cl>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+logiclayer = "^0.2.1"
+logiclayer-complexity = "^0.1.0"
+tesseract-olap = {extras = ["clickhouse"], version = "^0.5.0"}
+uvicorn = {extras = ["standard"], version = "^0.18.0"}
+
+[tool.poetry.dev-dependencies]
+ipykernel = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

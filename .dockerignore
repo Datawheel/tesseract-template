@@ -3,3 +3,4 @@
 *.env
 *.gcp.json
 *.gcp.encoded
+Dockerfile
