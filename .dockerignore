@@ -4,3 +4,4 @@
 *.gcp.json
 *.gcp.encoded
 Dockerfile
+kubernetes/
