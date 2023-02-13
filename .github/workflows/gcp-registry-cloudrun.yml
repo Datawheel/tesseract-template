@@ -76,6 +76,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -97,7 +98,7 @@ jobs:
             --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
       
       # Uncomment for adding the latest tag to the latest image created
-      #- name: Add 'Latest' Tag to Development Environments 
+      #- name: Add 'Latest' Tag to Environment
       #  run: |-
       #    gcloud beta artifacts docker tags add \
       #      --quiet \
@@ -107,6 +108,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
