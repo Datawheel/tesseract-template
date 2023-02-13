@@ -41,14 +41,11 @@
 #
 #    GitHub Variables
 #      GCP_PROJECT_ID                   (Google Cloud Project ID)
-#      GCP_ARTIFACT_REGISTRY_REPOSITORY (Google Cloud Artifact Registry Reposotiry Name)
 #      GCP_ARTIFACT_REGISTRY_LOCATION   (Google Cloud Artifact Registry Reposotiry Location)
 #
 # 5. Ensure you have the following GitHub Vatiables for each environment that you will set up:
 #
 #    GitHub Variables
-#      IMAGE_NAME                        (Image Name for the environment)
-#      IMAGE_ENV                         (Name of the environment)
 #      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
 #      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
 #
@@ -65,8 +62,6 @@ on:
     branches: [ "main" ]
 
 env:
-  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-  IMAGE_ENV: ${{ vars.IMAGE_ENV }}
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
   GCP_CLOUDRUN_SERVICE: ${{ vars.GCP_CLOUDRUN_SERVICE }}
@@ -84,7 +79,7 @@ jobs:
         id: auth
         uses: 'google-github-actions/auth@v0'
         with:
-          project_id: '${{ vars.GCP_PROJECT_ID }}'
+          project_id: '${{ env.GCP_PROJECT_ID }}'
           credentials_json: '${{ vars.GCP_SA_KEY }}'
 
       # Build image on Google Cloud Artifact Registry
@@ -93,15 +88,15 @@ jobs:
           gcloud builds submit \
             --quiet \
             --timeout=20m \
-            --tag ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
       
-      - name: Add 'Latest' Tag to Development Environments 
-        if: ${{ inputs.IMAGE_ENV == 'dev' }}
-        run: |-
-          gcloud beta artifacts docker tags add \
-            --quiet \
-            ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+      # Uncomment for adding the latest tag to the latest image created
+      #- name: Add 'Latest' Tag to Development Environments 
+      #  run: |-
+      #    gcloud beta artifacts docker tags add \
+      #      --quiet \
+      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
+      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
 
   deploy:
     needs: build
@@ -126,7 +121,7 @@ jobs:
           service: ${{ env.GCP_CLOUDRUN_SERVICE }}
           region: ${{ env.GCP_CLOUDRUN_REGION }}
           # NOTE: If using a pre-built image, update the image name here
-          image: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_CLOUDRUN_SERVICE }}/${{ vars.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
 
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
