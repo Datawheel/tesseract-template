@@ -1,4 +1,4 @@
-# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "main" branch
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "develop" branch
 #
 # To configure this workflow:
 #
