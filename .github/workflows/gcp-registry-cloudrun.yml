@@ -1,0 +1,140 @@
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "main" branch
+#
+# To configure this workflow:
+#
+# 1. Ensure the required Google Cloud APIs are enabled in the project:
+#
+#    Cloud Build          cloudbuild.googleapis.com
+#    Cloud Run            run.googleapis.com
+#    Artifact Registry    artifactregistry.googleapis.com
+#
+# 2. Create a service account (if you don't have one) with the following fields:
+#
+#    Service Account Name     <PROJECT-NAME>-github-actions
+#    Service Account ID       <PROJECT-NAME>-github-actions
+#
+# 3. Ensure the service account have the required IAM permissions granted:
+#
+#    Cloud Build
+#      roles/cloudbuild.builds.editor    (cloud build editor)
+#      roles/cloudbuild.builds.builder   (cloud build service account)
+#
+#    Cloud Run
+#      roles/run.admin                   (cloud run admin)
+#
+#    Artifact Registry
+#      roles/artifactregistry.repoAdmin  (artifact registry repository administrator)
+#      roles/artifactregistry.admin      (artifact registry administrator)
+#
+#    Service Account
+#      roles/iam.serviceAccountUser      (act as the Cloud Run runtime service account)
+#
+#    Basic Roles
+#      roles/viewer                      (viewer)
+#
+#    NOTE: You should always follow the principle of least privilege when assigning IAM roles
+#
+# 4. Ensure you have the following GitHub Secrets and Variables:
+#
+#    GitHub Secrets
+#      GCP_SA_KEY                        (Google Cloud Project Service Account Key) ref visit https://github.com/Datawheel/company/wiki/Setting-Up-a-Service-Account-for-Workflows#use-the-service-account-on-github-secrets
+#      TESSERACT_BACKEND                 (Tesseract Database Connection String)
+#
+#    GitHub Variables
+#      GCP_PROJECT_ID                    (Google Cloud Project ID)
+#      GCP_ARTIFACT_REGISTRY_LOCATION    (Google Cloud Artifact Registry Reposotiry Location)
+#
+# 5. Ensure you have the following GitHub Vatiables for each environment that you will set up:
+#
+#    GitHub Variables
+#      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
+#      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
+#      TESSERACT_SCHEMA                  (Tesseract Schema Folder)
+#      TESSERACT_DEBUG                   (Tesseract Debug Value)
+
+#
+# Further reading:
+#   Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
+#   Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
+#   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
+#   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+#   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
+name: Build to Artifact Registry and Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
+  GCP_CLOUDRUN_SERVICE: ${{ vars.GCP_CLOUDRUN_SERVICE }}
+  GCP_CLOUDRUN_REGION: ${{ vars.GCP_CLOUDRUN_REGION }}
+  TESSERACT_SCHEMA: ${{ vars.TESSERACT_SCHEMA }}
+  TESSERACT_DEBUG: ${{ vars.TESSERACT_DEBUG }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          project_id: '${{ env.GCP_PROJECT_ID }}'
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # Build image on Google Cloud Artifact Registry
+      - name: Build Docker Image
+        run: |-
+          gcloud builds submit \
+            --quiet \
+            --timeout=20m \
+            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
+      
+      # Uncomment for adding the latest tag to the latest image created
+      #- name: Add 'Latest' Tag to Environment
+      #  run: |-
+      #    gcloud beta artifacts docker tags add \
+      #      --quiet \
+      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
+      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          project_id: '${{ vars.GCP_PROJECT_ID }}'
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # Deploy image in Cloud Run
+      - name: Deploy to Cloud Run
+        id: 'deploy'
+        uses: 'google-github-actions/deploy-cloudrun@v1'
+        with:
+          service: '${{ env.GCP_CLOUDRUN_SERVICE }}'
+          image: '${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}'
+          region: '${{ env.GCP_CLOUDRUN_REGION }}'
+          flags: '--port=7777 --min-instances=0 --max-instances=4 --allow-unauthenticated'
+          env_vars: |
+            TESSERACT_BACKEND=${{ secrets.TESSERACT_BACKEND }}
+            TESSERACT_SCHEMA=${{ env.TESSERACT_SCHEMA }}
+            TESSERACT_DEBUG=${{ env.TESSERACT_DEBUG }}
+
+      # If required, use the Cloud Run url output in later steps
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
