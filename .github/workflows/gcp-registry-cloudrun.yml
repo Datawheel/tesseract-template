@@ -123,18 +123,17 @@ jobs:
 
       # Deploy image in Cloud Run
       - name: Deploy to Cloud Run
-        id: deploy
-        run: |-
-          gcloud run deploy ${{ env.GCP_CLOUDRUN_SERVICE }} \
-            --image=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
-            --set-env-vars=TESSERACT_BACKEND=${{ secrets.TESSERACT_BACKEND }} \
-            --set-env-vars=TESSERACT_SCHEMA=${{ env.TESSERACT_SCHEMA }} \
-            --set-env-vars=TESSERACT_DEBUG=${{ env.TESSERACT_DEBUG }} \
-            --region=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }} \
-            --port=7777 \
-            --min-instances=0 \
-            --max-instances=4 \
-            --allow-unauthenticated
+        id: 'deploy'
+        uses: 'google-github-actions/deploy-cloudrun@v1'
+        with:
+          service: '${{ env.GCP_CLOUDRUN_SERVICE }}'
+          image: '${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_CLOUDRUN_SERVICE }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}'
+          region: '${{ env.GCP_CLOUDRUN_REGION }}'
+          flags: '--port=7777 --min-instances=0 --max-instances=4 --allow-unauthenticated'
+          env_vars: |
+            TESSERACT_BACKEND=${{ secrets.TESSERACT_BACKEND }}
+            TESSERACT_SCHEMA=${{ env.TESSERACT_SCHEMA }}
+            TESSERACT_DEBUG=${{ env.TESSERACT_DEBUG }}
 
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
