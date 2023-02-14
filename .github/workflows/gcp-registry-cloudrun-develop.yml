@@ -45,14 +45,13 @@
 #      GCP_ARTIFACT_REGISTRY_NAME        (Google Cloud Articaft Registry Repository Name)
 #      GCP_ARTIFACT_REGISTRY_LOCATION    (Google Cloud Artifact Registry Reposotiry Location)
 #
-# 5. Ensure you have the following GitHub Vatiables for each environment that you will set up:
+# 5. Ensure you have the following GitHub Variables for each environment that you will set up:
 #
 #    GitHub Variables
 #      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
 #      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
 #      TESSERACT_SCHEMA                  (Tesseract Schema Folder)
 #      TESSERACT_DEBUG                   (Tesseract Debug Value)
-
 #
 # Further reading:
 #   Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
