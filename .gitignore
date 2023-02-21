@@ -1,2 +1,5 @@
 *.gcp.json
 *.gcp.encoded
+
+# environment variables
+.env.*
