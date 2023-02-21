@@ -16,11 +16,5 @@ If you are using node directly to develop, please recall your typical `.env` fil
 2. Build your container with:
   - NO ENV VARS AT BUILDTIME: `docker build -t <PROJECT_NAME>-tesseract-api .`
   - WITH ENV VARS AT BUILDTIME: `docker build --build-arg <ENV_NAME>=<ENV_VALUE> -t <PROJECT_NAME>-tesseract-api .`
-3. Run your container: 
-  - ``` 
-    docker run \
-      -p 7777:7777 \
-      -e TESSERACT_BACKEND="clickhouse://<CLICKHOUSE_USER>:<CLICKHOUSE_PASS>@<CLICKHOUSE_DB_IP>:<CLICKHOUSE_DB_PORT>/<CLICKHOUSE_DB_SCHEMA>" \
-      -e TESSERACT_SCHEMA="schema" \
-      --name=<PROJECT_NAME>-tesseract-api <PROJECT_NAME>-tesseract-api
-    ```
+3. Run your container with:
+  - docker run --rm --env-file=./.env.local -p 7777:7777 <PROJECT_NAME>-tesseract-api
