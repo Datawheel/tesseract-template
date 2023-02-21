@@ -18,3 +18,8 @@ If you are using node directly to develop, please recall your typical `.env` fil
   - WITH ENV VARS AT BUILDTIME: `docker build --build-arg <ENV_NAME>=<ENV_VALUE> -t <PROJECT_NAME>-tesseract-api .`
 3. Run your container with:
   - `docker run --rm --env-file=./.env.local -p 7777:7777 <PROJECT_NAME>-tesseract-api`
+
+---
+### References
+- [https://nextjs.org/docs/](https://nextjs.org/docs/getting-started)
+- [https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg](https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg)
