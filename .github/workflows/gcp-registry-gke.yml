@@ -1,0 +1,137 @@
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Google Kubernetes Engine when a commit is pushed to the "develop" branch
+#
+# To configure this workflow:
+#
+# 1. Ensure the required Google Cloud APIs are enabled in the project:
+#
+#    Cloud Build              cloudbuild.googleapis.com
+#    Kubernetes Engine API 
+#    Artifact Registry        artifactregistry.googleapis.com
+#
+# 2. Create a service account (if you don't have one) with the following fields:
+#
+#    Service Account Name     <PROJECT-NAME>-github-actions
+#    Service Account ID       <PROJECT-NAME>-github-actions
+#
+# 3. Ensure the service account have the required IAM permissions granted:
+#
+#    Kubernetes Engine Developer
+#      roles/container.developer         (kubernetes engine developer)
+#
+#    Artifact Registry
+#      roles/artifactregistry.repoAdmin  (artifact registry repository administrator)
+#      roles/artifactregistry.admin      (artifact registry administrator)
+#
+#    Service Account
+#      roles/iam.serviceAccountUser      (act as the Cloud Run runtime service account)
+#
+#    Basic Roles
+#      roles/viewer                      (viewer)
+#
+#    NOTE: You should always follow the principle of least privilege when assigning IAM roles
+#
+# 4. Ensure you have the following GitHub Secrets and Variables:
+#
+#    GitHub Secrets
+#      GCP_SA_KEY                        (Google Cloud Project Service Account Key) ref visit https://github.com/Datawheel/company/wiki/Setting-Up-a-Service-Account-for-Workflows#use-the-service-account-on-github-secrets
+#      TESSERACT_BACKEND                 (Tesseract Database Connection String)
+#
+#    GitHub Variables
+#      GCP_PROJECT_ID                    (Google Cloud Project ID)
+#      GCP_ARTIFACT_REGISTRY_NAME        (Google Cloud Articaft Registry Repository Name)
+#      GCP_ARTIFACT_REGISTRY_LOCATION    (Google Cloud Artifact Registry Reposotiry Location)
+#
+# 5. Ensure you have the following GitHub Variables for each environment that you will set up:
+#
+#    GitHub Variables
+#      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
+#      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
+#      GKE_APP_NAME
+#      GKE_APP_NAMESPACE
+#      GKE_CLUSTER
+#      GKE_ZONE
+#      TESSERACT_SCHEMA                  (Tesseract Schema Folder)
+#      TESSERACT_DEBUG                   (Tesseract Debug Value)
+
+#
+# Further reading:
+#   Kubernetes Developer                      - https://cloud.google.com/iam/docs/understanding-roles#container.developer
+#   Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
+#   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
+#   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+#   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
+name: Build to Artifact Registry and Deploy to GKE
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_ARTIFACT_REGISTRY_NAME: ${{ vars.GCP_ARTIFACT_REGISTRY_NAME }}
+  GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
+  GCP_CLOUDRUN_SERVICE: ${{ vars.GCP_CLOUDRUN_SERVICE }}
+  GCP_CLOUDRUN_REGION: ${{ vars.GCP_CLOUDRUN_REGION }}
+  GKE_APP_NAME: ${{ vars.GKE_APP_NAME }}
+  GKE_APP_NAMESPACE: ${{ vars.GKE_APP_NAMESPACE }}
+  GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+  GKE_ZONE: ${{ vars.GKE_ZONE }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          project_id: '${{ env.GCP_PROJECT_ID }}'
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # Build image on Google Cloud Artifact Registry
+      - name: Build Docker Image
+        run: |-
+          gcloud builds submit \
+            --quiet \
+            --timeout=20m \
+            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
+      
+      # Uncomment for adding the latest tag to the latest image created
+      - name: Add 'Latest' Tag to Development Environments 
+        run: |-
+          gcloud beta artifacts docker tags add \
+            --quiet \
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          project_id: '${{ vars.GCP_PROJECT_ID }}'
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      
+      # Get google kubernetes engine credentials
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      # Restart deployment by deleting old pod
+      - name: Restart Deployment
+        run: kubectl delete pod -n ${{ env.GKE_APP_NAMESPACE }} -l app=${{ env.GKE_APP_NAME }}
