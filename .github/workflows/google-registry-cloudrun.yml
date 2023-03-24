@@ -54,12 +54,12 @@
 #      TESSERACT_DEBUG                   (Tesseract Debug Value)
 #
 # Further reading:
-#   Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
-#   Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
-#   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
-#   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
-#   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
-name: Build to Artifact Registry and Deploy to Cloud Run
+#    Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
+#    Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
+#    Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
+#    Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+#    Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
+name: [Google Cloud] Build to Artifact Registry and Deploy to Cloud Run
 
 on:
   push:
@@ -99,12 +99,12 @@ jobs:
             --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
       
       # Uncomment for adding the latest tag to the latest image created
-      #- name: Add 'Latest' Tag to Environment
-      #  run: |-
-      #    gcloud beta artifacts docker tags add \
-      #      --quiet \
-      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
-      #      ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
+      - name: Add 'Latest' Tag to Environment
+        run: |-
+          gcloud beta artifacts docker tags add \
+            --quiet \
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
 
   deploy:
     needs: build

@@ -5,7 +5,7 @@
 # 1. Ensure the required Google Cloud APIs are enabled in the project:
 #
 #    Cloud Build              cloudbuild.googleapis.com
-#    Kubernetes Engine API 
+#    Kubernetes Engine API    container.googleapis.com
 #    Artifact Registry        artifactregistry.googleapis.com
 #
 # 2. Create a service account (if you don't have one) with the following fields:
@@ -34,7 +34,6 @@
 #
 #    GitHub Secrets
 #      GCP_SA_KEY                        (Google Cloud Project Service Account Key) ref visit https://github.com/Datawheel/company/wiki/Setting-Up-a-Service-Account-for-Workflows#use-the-service-account-on-github-secrets
-#      TESSERACT_BACKEND                 (Tesseract Database Connection String)
 #
 #    GitHub Variables
 #      GCP_PROJECT_ID                    (Google Cloud Project ID)
@@ -46,25 +45,22 @@
 #    GitHub Variables
 #      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
 #      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
-#      GKE_APP_NAME
-#      GKE_APP_NAMESPACE
-#      GKE_CLUSTER
-#      GKE_ZONE
-#      TESSERACT_SCHEMA                  (Tesseract Schema Folder)
-#      TESSERACT_DEBUG                   (Tesseract Debug Value)
-
+#      GKE_APP_NAME                      (Google Kubernetes Engine Deployment Name)
+#      GKE_APP_NAMESPACE                 (Google Kubernetes Engine Deployment Namespace)
+#      GKE_CLUSTER                       (Google Kubernetes Engine Cluster Name)
+#      GKE_ZONE                          (Google Kubernetes Engine Cluster Zone)
 #
 # Further reading:
-#   Kubernetes Developer                      - https://cloud.google.com/iam/docs/understanding-roles#container.developer
-#   Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
-#   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
-#   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
-#   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
-name: Build to Artifact Registry and Deploy to GKE
+#    Kubernetes Developer                      - https://cloud.google.com/iam/docs/understanding-roles#container.developer
+#    Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
+#    Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
+#    Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+#    Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
+name: [Google Cloud] Build to Artifact Registry and Deploy to GKE
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -80,7 +76,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -112,7 +108,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: develop
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
