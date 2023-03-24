@@ -7,8 +7,6 @@ from logiclayer_complexity import EconomicComplexityModule
 from tesseract_olap import OlapServer
 from tesseract_olap.logiclayer import TesseractModule
 from fastapi.responses import HTMLResponse
-# add cors to the api
-from fastapi.middleware.cors import CORSMiddleware
 
 
 # PARAMETERS ===================================================================
@@ -47,17 +45,6 @@ layer.add_module("/tesseract", tsrc)
 # layer.add_module("/complexity", cmplx)
 layer.add_static("/ui", "./dataexplorer/", html=True)
 layer.add_route("/", route_index, response_class=HTMLResponse)
-
-# add cors to the api
-origins = ["*"]
-
-layer.app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # use "app:layer" if running uvicorn or gunicorn from CLI directly
 if __name__ == "__main__":
