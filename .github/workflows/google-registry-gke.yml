@@ -43,8 +43,7 @@
 # 5. Ensure you have the following GitHub Variables for each environment that you will set up:
 #
 #    GitHub Variables
-#      GCP_CLOUDRUN_SERVICE              (CloudRun Service Name of the environment)
-#      GCP_CLOUDRUN_REGION               (CloudRun Service Region of the environment)
+#      GCP_IMAGE_NAME                    (Docker Image Name)
 #      GKE_APP_NAME                      (Google Kubernetes Engine Deployment Name)
 #      GKE_APP_NAMESPACE                 (Google Kubernetes Engine Deployment Namespace)
 #      GKE_CLUSTER                       (Google Kubernetes Engine Cluster Name)
@@ -66,8 +65,7 @@ env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_ARTIFACT_REGISTRY_NAME: ${{ vars.GCP_ARTIFACT_REGISTRY_NAME }}
   GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
-  GCP_CLOUDRUN_SERVICE: ${{ vars.GCP_CLOUDRUN_SERVICE }}
-  GCP_CLOUDRUN_REGION: ${{ vars.GCP_CLOUDRUN_REGION }}
+  GCP_IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
   GKE_APP_NAME: ${{ vars.GKE_APP_NAME }}
   GKE_APP_NAMESPACE: ${{ vars.GKE_APP_NAMESPACE }}
   GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
@@ -76,7 +74,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: prod
+    environment: playground
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -95,20 +93,20 @@ jobs:
           gcloud builds submit \
             --quiet \
             --timeout=20m \
-            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }}
+            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
       
       # Uncomment for adding the latest tag to the latest image created
       - name: Add 'Latest' Tag to Development Environments 
         run: |-
           gcloud beta artifacts docker tags add \
             --quiet \
-            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:${{ github.sha }} \
-            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_CLOUDRUN_SERVICE }}:latest
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }}:latest
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: prod
+    environment: playground
     steps:
       - name: Checkout
         uses: actions/checkout@v3
