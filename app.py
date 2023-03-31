@@ -29,8 +29,8 @@ logging.config.fileConfig(log_filepath, disable_existing_loggers=False)
 def route_index():
     return f"""<!doctype html>
 <html lang="en">
-<head><meta charset=utf-8><title>Tesseract Python API</title><meta http-equiv="Refresh" content="0; url='/ui/'" /></head>
-<body><h1>Tesseract Python API</h1><p><a href="/ui/">DataExplorer</a></p><p style="opacity:0.5">{commit_hash}</p></body>
+<head><meta charset=utf-8><title>Tesseract Python API Playground</title><meta http-equiv="Refresh" content="0; url='/ui/'" /></head>
+<body><h1>Tesseract Python API Playground</h1><p><a href="/ui/">DataExplorer</a></p><p style="opacity:0.5">{commit_hash}</p></body>
 </html>
 """
 

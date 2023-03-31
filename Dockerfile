@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.9
 
 # install required dependencies
 RUN pip install -U pip setuptools wheel

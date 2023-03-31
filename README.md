@@ -21,5 +21,4 @@ If you are using node directly to develop, please recall your typical `.env` fil
 
 ---
 ### References
-- [https://nextjs.org/docs/](https://nextjs.org/docs/getting-started)
 - [https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg](https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg)
