@@ -1,5 +1,4 @@
 <Schema name="idb" default_locale="en">
-
     <Cube name="IDB Transparency">
         <Table name="idb_transparency" primary_key="country_id"/>
 
@@ -223,29 +222,16 @@
             <Hierarchy name="Public and Private Integrity">
                 <LocalizedAttr attr="caption" locale="es" value="Integridad pública y privada" />
 
-                <Table name="dim_region"/>
+                <InlineTable name="inline_binary" format="tuples">
+                    <Row>("pp_id", "pp_name_en", "pp_name_es")</Row>
+                    <Row>(1,"True","Verdadero")</Row>
+                    <Row>(0,"False","Falso")</Row>
+                    <Row>(9,"Uninformed", "No informado")</Row>
+                </InlineTable>
 
-                <Level name="Public and Private Integrity" key_column="id" name_column="name_en" key_type="str">
-                    <LocalizedAttr attr="name_column" locale="es" value="name_es" />
+                <Level name="Public and Private Integrity" key_column="pp_id" name_column="pp_name_en">
+                    <LocalizedAttr attr="name_column" locale="es" value="pp_name_es" />
                     <LocalizedAttr attr="caption" locale="es" value="Integridad pública y privada" />
-                </Level>
-            </Hierarchy>
-        </Dimension>
-
-        <Dimension name="CPR" foreign_key="cpr">
-            <LocalizedAttr attr="caption" locale="es" value="Consulta de regulaciones propuestas" />
-            <LocalizedAttr attr="caption" locale="en" value="Consultation on proposed regulations" />
-
-            <Hierarchy name="CPR">
-                <LocalizedAttr attr="caption" locale="es" value="Consulta de regulaciones propuestas" />
-                <LocalizedAttr attr="caption" locale="en" value="Consultation on proposed regulations" />
-
-                <Table name="dim_cpr"/>
-
-                <Level name="CPR" key_column="cpr_id" name_column="cpr_en" key_type="str">
-                    <LocalizedAttr attr="name_column" locale="es" value="cpr_es" />
-                    <LocalizedAttr attr="caption" locale="es" value="Consulta de regulaciones propuestas" />
-                    <LocalizedAttr attr="caption" locale="en" value="Consultation on proposed regulations" />
                 </Level>
             </Hierarchy>
         </Dimension>
@@ -287,6 +273,12 @@
             <Annotation name="source_link">https://index.baselgovernance.org/</Annotation>
             <LocalizedAttr attr="caption" locale="es" value="Índice AML de Basilea" />
             <LocalizedAttr attr="caption" locale="en" value="Basel AML Index" />
+        </Measure>
+        <Measure name="CPR" key_column="cpr" aggregator="mode">
+            <Annotation name="source_name">Global Indicators of Regulatory Governance</Annotation>
+            <Annotation name="source_link">https://rulemaking.worldbank.org/en/data/visualization</Annotation>
+            <LocalizedAttr attr="caption" locale="es" value="Consulta de regulaciones propuestas" />
+            <LocalizedAttr attr="caption" locale="en" value="Consultation on proposed regulations" />
         </Measure>
     </Cube>
 </Schema>
