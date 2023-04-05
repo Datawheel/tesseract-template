@@ -1,0 +1,11 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <SharedDimension name="Shared Units">
+        <Hierarchy name="Unit">
+          <Table name="dim_shared_unit" />
+
+          <Level name="Unit" key_column="unit_id" name_column="unit_name">
+            <Property name="Unit Abbreviation" key_column="unit_abbrevation" />
+          </Level>
+        </Hierarchy>
+    </SharedDimension>
+</Schema>

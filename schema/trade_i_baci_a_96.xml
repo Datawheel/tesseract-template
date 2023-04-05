@@ -1,0 +1,73 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <Cube name="trade_i_baci_a_96">
+        <Annotation name="source_name">BACI</Annotation>
+        <Annotation name="source_description">Product Trade by Year and Country (HS 6-digit depth)</Annotation>
+        <Annotation name="dataset_name">HS6 REV. 1996 (1998 - 2019)</Annotation>
+        <Annotation name="dataset_link">http://www.cepii.fr/CEPII/en/bdd_modele/presentation.asp?id=37</Annotation>
+        <!--<Annotation name="topic">International</Annotation>
+        <Annotation name="subtopic">Trade</Annotation>
+        <Annotation name="table">HS6 REV. 1996 (1998 - 2019)</Annotation>-->
+
+        <Table name="trade_i_baci_a_96" primary_key="hs_master_id" />
+
+        <DimensionUsage name="HS Product" source="HS96" foreign_key="hs_master_id" />
+        <DimensionUsage name="Unit" source="Shared Units" foreign_key="unit_id" />
+
+        <DimensionUsage source="Geography" name="Exporter" foreign_key="exporter">
+            <LocalizedAttr attr="caption" locale="es" value="Exportador" />
+
+            <HierarchyUsage source="Geography" name="Exporter">
+                <LocalizedAttr attr="caption" locale="es" value="Exportador" />
+
+                <LevelUsage source="Continent" name="Exporter Continent">
+                    <LocalizedAttr attr="caption" locale="es" value="Continente Exportador" />
+                </LevelUsage>
+                
+                <LevelUsage source="Country" name="Exporter Country">
+                    <LocalizedAttr attr="caption" locale="es" value="País Exportador" />
+                    <PropertyUsage source="ISO 2" name="Exporter ISO 2" />
+                </LevelUsage>
+            </HierarchyUsage>
+        </DimensionUsage>
+
+        <DimensionUsage source="Geography" name="Importer" foreign_key="importer">
+            <LocalizedAttr attr="caption" locale="es" value="Importador" />
+
+            <HierarchyUsage source="Geography" name="Importer">
+                <LocalizedAttr attr="caption" locale="es" value="Importador" />
+
+                <LevelUsage source="Continent" name="Importer Continent">
+                    <LocalizedAttr attr="caption" locale="es" value="Continente Exportador" />
+                </LevelUsage>
+
+                <LevelUsage source="Country" name="Importer Country">
+                    <LocalizedAttr attr="caption" locale="es" value="País Importador" />
+
+                    <PropertyUsage source="ISO 2" name="Importer ISO 2" />
+                </LevelUsage>
+            </HierarchyUsage>
+        </DimensionUsage>
+
+        <Dimension name="Year" foreign_key="year" type="time">
+            <LocalizedAttr attr="caption" locale="es" value="Año" />
+
+            <Hierarchy name="Year">
+                <LocalizedAttr attr="caption" locale="es" value="Año" />
+
+                <Level name="Year" key_column="year" key_type="i16">
+                    <LocalizedAttr attr="caption" locale="es" value="Año" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Measure name="Trade Value" key_column="value" aggregator="sum">
+            <Annotation name="units">USD</Annotation>
+            <LocalizedAttr attr="caption" locale="es" value="Valor comercial" />
+        </Measure>
+
+        <Measure name="Quantity" key_column="quantity" aggregator="sum">
+            <Annotation name="units">Metric Ton</Annotation>
+            <LocalizedAttr attr="caption" locale="es" value="Cantidad" />
+        </Measure>
+    </Cube>
+</Schema>

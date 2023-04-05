@@ -1,0 +1,30 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <SharedDimension name="HS96">
+        <Hierarchy name="HS96">
+            <Table name="dim_shared_hs96" />
+            <Level name="Section" key_column="section_id"  key_type="i16">
+                <LocalizedAttr attr="name_column" locale="en" value="section_name" />
+                <LocalizedAttr attr="name_column" locale="es" value="section_name_es" />
+                <Property name="Section" key_column="section" />
+            </Level>
+            <Level name="HS2" key_column="hs2_id" key_type="i16">
+                <Property name="HS2" key_column="hs2" />
+
+                <LocalizedAttr attr="name_column" locale="en" value="hs2_name" />
+                <LocalizedAttr attr="name_column" locale="es" value="hs2_name_es" />
+            </Level>
+            <Level name="HS4" key_column="hs4_id" key_type="i16">
+                <Property name="HS4" key_column="hs4" />
+
+                <LocalizedAttr attr="name_column" locale="en" value="hs4_name" />
+                <LocalizedAttr attr="name_column" locale="es" value="hs4_name_es" />
+            </Level>
+            <Level name="HS6" key_column="hs6_id" key_type="i16">
+                <Property name="HS6" key_column="hs6" />
+
+                <LocalizedAttr attr="name_column" locale="en" value="hs6_name" />
+                <LocalizedAttr attr="name_column" locale="es" value="hs6_name_es" />
+            </Level>
+        </Hierarchy>
+    </SharedDimension>
+</Schema>
