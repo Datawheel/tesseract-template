@@ -1,0 +1,165 @@
+<Schema name="tesseract-api" default_locale="en"> 
+  <Cube name="acs_ygl_language_spoken_at_home_by_english_ability_2016_1">
+      <Annotation name="source_name">Census Bureau</Annotation>
+      <Annotation name="source_description">The American Community Survey (ACS) is conducted by the US Census and sent to a portion of the population every year.</Annotation>
+      <Annotation name="dataset_name">ACS 1-year Estimate</Annotation>
+      <Annotation name="dataset_link">http://www.census.gov/programs-surveys/acs/</Annotation>
+      <Annotation name="table_id">B16001</Annotation>
+      <!--<Annotation name="topic">Diversity</Annotation>
+      <Annotation name="subtopic">Heritage</Annotation>-->
+
+      <Table name="acs_ygl_language_spoken_at_home_by_english_ability_2016_1"/>
+
+      <Dimension name="Geography" foreign_key="geoid">
+        <Hierarchy name="Nation" >
+          <Table name="shapes2017_us" />
+          <Level key_column="geoid" name="Nation" name_column="name" key_type="str"/>
+        </Hierarchy>
+        <!--<Hierarchy name="Tract">
+          <Table name="shapes2017_tracts" />
+          <Level key_column="state_id" name="State" name_column="state_name" key_type="str" />
+          <Level key_column="county_id" name="County" name_column="county_name" key_type="str" />
+          <Level key_column="geoid" name="Tract" name_column="name" key_type="str">
+            <Property name="Area Tract" key_column="aland" />
+          </Level>
+        </Hierarchy>-->
+        <Hierarchy name="Place">
+          <Table name="shapes2017_places" />
+          <Level key_column="state_id" name="State Place" name_column="state_name" key_type="str"/>
+          <Level key_column="geoid" name="Place" name_column="name" key_type="str">
+            <Property name="Area Place" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="County">
+          <Table name="shapes2017_counties" />
+          <Level key_column="state_id" name="State County" name_column="state_name" key_type="str"/>
+          <Level key_column="geoid" name="County" name_column="name" key_type="str">
+            <Property name="Area County" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="State">
+          <Table name="shapes2017_states" />
+          <Level key_column="geoid" name="State" name_column="name" key_type="str">
+            <Property name="Area State" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="MSA">
+          <Table name="shapes2017_msas" />
+          <Level key_column="geoid" name="MSA" name_column="name" key_type="str">
+            <Property name="Area MSA" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="PUMA">
+          <Table name="shapes2017_pumas" />
+          <Level key_column="state_id" name="State Puma" name_column="state_name" />
+          <Level key_column="geoid" name="PUMA" name_column="name" key_type="str">
+            <Property name="Area Puma" key_column="aland10" />
+          </Level>
+        </Hierarchy>
+        <!--<Hierarchy name="Zip">
+          <Table name="shapes2017_zips" />
+          <Level key_column="geoid" name="Zip" name_column="zcta5ce10" key_type="str">
+            <Property name="Area" key_column="aland10" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="County Subdivision">
+          <Table name="county_subdivisions" schema="shapes2017"/>
+          <Level key_column="state_id" name="State" name_column="state_name" key_type="str"/>
+          <Level key_column="county_id" name="County" name_column="county_name" key_type="str"/>
+          <Level key_column="geoid" name="County Subdivision" name_column="name" key_type="str">
+            <Property name="Area" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="Place-Tract">
+          <Table name="shapes2017_tracts" />
+          <Level key_column="place_id" name="Place" name_column="place_description" key_type="str" />
+          <Level key_column="geoid" name="Place-Tract" name_column="name" key_type="str" >
+            <Property name="Area" key_column="aland" />
+          </Level>
+        </Hierarchy>
+        <Hierarchy name="MSA-Tract">
+          <Table name="shapes2017_tracts" />
+          <Level key_column="msa_id" name="MSA" name_column="msa_description" key_type="str" />
+          <Level key_column="geoid" name="MSA-Tract" name_column="name" key_type="str">
+            <Property name="Area" key_column="aland" />
+          </Level>
+        </Hierarchy>-->
+      </Dimension>
+
+      <Dimension name="Year" foreign_key="year" type="time">
+        <Hierarchy name="Year" primary_key="year">
+          <Level name="Year" key_column="year" key_type="UInt16"/>
+        </Hierarchy>
+      </Dimension>
+  
+      <Dimension foreign_key="dim_0" name="Language Spoken at Home">
+      
+        <Hierarchy name="Language Spoken at Home">
+          <InlineTable name="dim_0_table" format="tuples">
+            <Row>("member_0_code", "member_0")</Row>
+            <Row>(0, "Speak Only English")</Row>
+            <Row>(1, "Spanish")</Row>
+            <Row>(2, "French (Incl. Cajun)")</Row>
+            <Row>(3, "Haitian")</Row>
+            <Row>(4, "Italian")</Row>
+            <Row>(5, "Portuguese")</Row>
+            <Row>(6, "German")</Row>
+            <Row>(7, "Yiddish, Pennsylvania Dutch or Other West Germanic Languages")</Row>
+            <Row>(8, "Greek")</Row>
+            <Row>(9, "Russian")</Row>
+            <Row>(10, "Polish")</Row>
+            <Row>(11, "Serbo-Croatian")</Row>
+            <Row>(12, "Ukrainian or Other Slavic Languages")</Row>
+            <Row>(13, "Armenian")</Row>
+            <Row>(14, "Persian (Incl. Farsi, Dari)")</Row>
+            <Row>(15, "Gujarati")</Row>
+            <Row>(16, "Hindi")</Row>
+            <Row>(17, "Urdu")</Row>
+            <Row>(18, "Punjabi")</Row>
+            <Row>(19, "Bengali")</Row>
+            <Row>(20, "Nepali, Marathi, or Other Indic Languages")</Row>
+            <Row>(21, "Other Indo-European Languages")</Row>
+            <Row>(22, "Telugu")</Row>
+            <Row>(23, "Tamil")</Row>
+            <Row>(24, "Malayalam, Kannada, or Other Dravidian Languages")</Row>
+            <Row>(25, "Chinese (Incl. Mandarin, Cantonese)")</Row>
+            <Row>(26, "Japanese")</Row>
+            <Row>(27, "Korean")</Row>
+            <Row>(28, "Hmong")</Row>
+            <Row>(29, "Vietnamese")</Row>
+            <Row>(30, "Khmer")</Row>
+            <Row>(31, "Thai, Lao, or Other Tai-Kadai Languages")</Row>
+            <Row>(32, "Other Languages of Asia")</Row>
+            <Row>(33, "Tagalog (Incl. Filipino)")</Row>
+            <Row>(34, "Ilocano, Samoan, Hawaiian, or Other Austronesian Languages")</Row>
+            <Row>(35, "Arabic")</Row>
+            <Row>(36, "Hebrew")</Row>
+            <Row>(37, "Amharic, Somali, or Other Afro-Asiatic Languages")</Row>
+            <Row>(38, "Yoruba, Twi, Igbo, or Other Languages of Western Africa")</Row>
+            <Row>(39, "Swahili or Other Languages of Central, Eastern, &amp; Southern Africa")</Row>
+            <Row>(40, "Navajo")</Row>
+            <Row>(41, "Other Native Languages of North America")</Row>
+            <Row>(42, "Other &amp; Unspecified Languages")</Row>
+          </InlineTable>
+        <Level key_column="member_0_code" name="Language Spoken at Home" name_column="member_0"/>
+      </Hierarchy>
+    </Dimension>
+  
+    <Dimension foreign_key="dim_1" name="English Ability">
+      
+      <Hierarchy name="English Ability">
+        <InlineTable name="dim_1_table" format="tuples">
+          <Row>("member_0_code", "member_0")</Row>
+          <Row>(0,"Speak English&quot;very Well&quot;")</Row>
+          <Row>(1,"Speak English Less Than&quot;very Well&quot;")</Row>
+        </InlineTable>
+        <Level key_column="member_0_code" name="English Ability" name_column="member_0"/>
+      </Hierarchy>
+    </Dimension>
+
+    <Measure aggregator="sum" key_column="mea" name="Languages Spoken">
+      <Annotation name="aggregation_method">SUM</Annotation>
+      <Annotation name="units_of_measurement">People</Annotation>
+    </Measure>
+  </Cube>
+</Schema>

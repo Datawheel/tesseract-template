@@ -1,4 +1,4 @@
-<Schema name="idb" default_locale="en">
+<Schema name="tesseract-api" default_locale="en">
     <Cube name="IDB Transparency">
         <Table name="idb_transparency" primary_key="country_id"/>
 
