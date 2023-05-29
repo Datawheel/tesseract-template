@@ -1,0 +1,28 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <SharedDimension name="Subnational HS6 Product">
+    <Hierarchy name="Product">
+        <Table name="dim_shared_master_hs6" />
+
+        <Level name="Section"  key_column="section_id" name_column="section_name">
+            <Annotation name="level">Section</Annotation>
+            <Property name="Section" key_column="section" />
+            <Property name="Section ES" key_column="section_name_es" caption_set="es" />
+        </Level>
+        <Level name="HS2"  key_column="hs2_id" name_column="hs2_name">
+            <Annotation name="level">HS2</Annotation>
+            <Property name="HS2" key_column="hs2" />
+            <Property name="HS2 ES" key_column="hs2_name_es" caption_set="es" />
+        </Level>
+        <Level name="HS4"  key_column="hs4_id" name_column="hs4_name">
+            <Annotation name="level">HS4</Annotation>
+            <Property name="HS4" key_column="hs4" />
+            <Property name="HS4 ES" key_column="hs4_name_es" caption_set="es" />
+        </Level>
+        <Level name="Product"  key_column="hs6_id" name_column="hs6_name">
+            <Annotation name="level">HS6</Annotation>
+            <Property name="HS6" key_column="hs6" />
+            <Property name="Product ES" key_column="hs6_name_es" caption_set="es" />
+        </Level>
+    </Hierarchy>
+</SharedDimension>
+</Schema>
