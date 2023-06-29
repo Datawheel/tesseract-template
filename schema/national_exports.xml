@@ -1,0 +1,41 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <Cube name="National Exports">
+    
+        <Table name="national_exports"/>
+        <Dimension foreign_key="year" name="Year">
+            <Hierarchy name="Year">
+                <Level name="Year" key_column="year" key_type="i16"/>
+            </Hierarchy>
+        </Dimension>
+
+        <Dimension name="Exporter" foreign_key="oec_id">
+            <Hierarchy name="Country">
+                <Table name="dim_country" />
+                    <Level key_column="continent_id" name="Continent" name_column="continent" key_type="str" />
+                    <Level key_column="geo_id" name="Exporter" name_column="country" key_type="str" />
+            </Hierarchy>
+        </Dimension>
+       
+        <Dimension name="Product" foreign_key="hs4_id">
+            <Hierarchy name="HS4">
+                <Table name="dim_hs4"/>
+                    <Level name="Section" key_column="section_id" name_column="section" key_type="u32"/>
+                    <Level name="HS2" key_column="hs2_id" name_column="hs2" key_type="u32"/>
+                    <Level name="HS4" key_column="hs4_id" name_column="hs4" key_type="u32"/>
+            </Hierarchy>
+        </Dimension>  
+        
+        <Dimension name="With Oil" foreign_key="with_oil">
+            <Hierarchy name="With Oil">
+                <InlineTable name="oil_table" format="tuples">
+                    <Row>("oil_code", "oil_bool")</Row>
+                    <Row>(0, "No")</Row>
+                    <Row>(1, "Yes")</Row>
+                </InlineTable>
+                <Level name="With Oil" key_column="oil_code" name_column="oil_bool" key_type="u16" />
+            </Hierarchy>
+        </Dimension>
+        
+        <Measure name="Trade Values" key_column="trade_value" aggregator="sum" />
+    </Cube>
+</Schema>
