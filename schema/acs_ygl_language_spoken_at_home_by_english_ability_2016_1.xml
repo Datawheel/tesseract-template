@@ -11,7 +11,7 @@
       <Table name="acs_ygl_language_spoken_at_home_by_english_ability_2016_1"/>
 
       <Dimension name="Geography" foreign_key="geoid" default_hierarchy="Nation">
-        <Hierarchy name="Nation" default_member="Country.US">
+        <Hierarchy name="Nation" > <!--default_member="Nation.US"-->
           <Table name="shapes2017_us" />
           <Level key_column="geoid" name="Nation" name_column="name" key_type="str"/>
         </Hierarchy>
