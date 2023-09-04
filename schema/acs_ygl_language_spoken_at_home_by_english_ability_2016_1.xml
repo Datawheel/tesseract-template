@@ -1,5 +1,5 @@
 <Schema name="tesseract-api" default_locale="en"> 
-  <Cube name="acs_ygl_language_spoken_at_home_by_english_ability_2016_1" subset_table="true">
+  <Cube name="ACS Lang spoken at home" subset_table="true">
       <Annotation name="source_name">Census Bureau</Annotation>
       <Annotation name="source_description">The American Community Survey (ACS) is conducted by the US Census and sent to a portion of the population every year.</Annotation>
       <Annotation name="dataset_name">ACS 1-year Estimate</Annotation>
