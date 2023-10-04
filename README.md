@@ -8,17 +8,24 @@ This is a Tesseract API template for projects using the [tesseract-api](https://
 
 ### Use of local environments
 
-If you are using node directly to develop, please recall your typical `.env` file to `.env.local`. For this, use `.env` as a guide
+If you were using node directly to develop, please recall your `.env` file to `.env.local`. For the purpouse of this template, `.env` is used as the initial example and is not ignored on `.gitignore`
 
 ### Using Docker to Develop
 
-1. [Install Docker](https://docs.docker.com/engine/install/) on your machine
-2. Build your container with:
-  - NO ENV VARS AT BUILDTIME: `docker build -t <PROJECT_NAME>-tesseract-api .`
-  - WITH ENV VARS AT BUILDTIME: `docker build --build-arg <ENV_NAME>=<ENV_VALUE> -t <PROJECT_NAME>-tesseract-api .`
-3. Run your container with:
-  - `docker run --rm --env-file=./.env.local -p 7777:7777 <PROJECT_NAME>-tesseract-api`
+Required to [install Docker](https://docs.docker.com/engine/install/) on your environment
+
+#### Build you container
+
+If you want to build your container on Docker run `docker build -t <PROJECT_NAME>-tesseract-api .`. If your app require environment variables at buildtime, remember to call them on the Dockerfile and use them adding `--build-arg <ENV_NAME>=<ENV_VALUE>` per variable to the build command
+
+#### Run you container
+
+Before you can test your container, remember to update the variables inside your `.env.local` file to the latest values, those will be used later at runtime
+
+To run the recently builded image use the command `docker run --rm --env-file=./.env.local -p 7777:7777 <PROJECT_NAME>-tesseract-api` on the folder where `.env.local` is located. If you want to run the app on the background, change the `--rm` flag to `-d`
 
 ---
 ### References
+- [https://www.docker.com/](https://www.docker.com/)
+- [https://docs.docker.com/](https://docs.docker.com/)
 - [https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg](https://docs.docker.com/engine/reference/commandline/build/#-set-build-time-variables---build-arg)
