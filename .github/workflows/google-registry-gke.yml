@@ -1,12 +1,11 @@
-# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Google Kubernetes Engine when a commit is pushed to the "develop" branch
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "develop" branch
 #
 # To configure this workflow:
 #
 # 1. Ensure the required Google Cloud APIs are enabled in the project:
 #
-#    Cloud Build              cloudbuild.googleapis.com
-#    Kubernetes Engine API    container.googleapis.com
-#    Artifact Registry        artifactregistry.googleapis.com
+#    Cloud Build          cloudbuild.googleapis.com
+#    Artifact Registry    artifactregistry.googleapis.com
 #
 # 2. Create a service account (if you don't have one) with the following fields:
 #
@@ -15,8 +14,9 @@
 #
 # 3. Ensure the service account have the required IAM permissions granted:
 #
-#    Kubernetes Engine Developer
-#      roles/container.developer         (kubernetes engine developer)
+#    Cloud Build
+#      roles/cloudbuild.builds.editor    (cloud build editor)
+#      roles/cloudbuild.builds.builder   (cloud build service account)
 #
 #    Artifact Registry
 #      roles/artifactregistry.repoAdmin  (artifact registry repository administrator)
@@ -40,26 +40,27 @@
 #      GCP_ARTIFACT_REGISTRY_NAME        (Google Cloud Articaft Registry Repository Name)
 #      GCP_ARTIFACT_REGISTRY_LOCATION    (Google Cloud Artifact Registry Reposotiry Location)
 #
-# 5. Ensure you have the following GitHub Variables for each environment that you will set up:
+# 5. Ensure you have the following GitHub Vatiables for each environment that you will set up:
 #
 #    GitHub Variables
 #      GCP_IMAGE_NAME                    (Docker Image Name)
-#      GKE_APP_NAME                      (Google Kubernetes Engine Deployment Name)
-#      GKE_APP_NAMESPACE                 (Google Kubernetes Engine Deployment Namespace)
-#      GKE_CLUSTER                       (Google Kubernetes Engine Cluster Name)
-#      GKE_ZONE                          (Google Kubernetes Engine Cluster Zone)
+#      GKE_APP_NAME                      (Kubernetes Application Name)
+#      GKE_APP_RELEASE                   (Kubernetes Application Release Version)
+#      GKE_APP_NAMESPACE                 (Kubernetes Application Namespace)    
+#      GKE_CLUSTER                       (Kubernetes Cluster Name)
+#      GKE_ZONE                          (Kubernetes Cluster Location)
 #
 # Further reading:
-#    Kubernetes Developer                      - https://cloud.google.com/iam/docs/understanding-roles#container.developer
-#    Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
-#    Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
-#    Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
-#    Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
-name: "[Google Cloud] Build to Artifact Registry and Deploy to GKE"
+#   Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
+#   Artifact Registry IAM permissions         - https://cloud.google.com/artifact-registry/docs/access-control#roles
+#   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
+#   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+#   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
+name: Build to Artifact Registry and Deploy to GKE
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop" ]
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -67,6 +68,7 @@ env:
   GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
   GCP_IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
   GKE_APP_NAME: ${{ vars.GKE_APP_NAME }}
+  GKE_APP_RELEASE: ${{ vars.GKE_APP_RELEASE }}
   GKE_APP_NAMESPACE: ${{ vars.GKE_APP_NAMESPACE }}
   GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
   GKE_ZONE: ${{ vars.GKE_ZONE }}
@@ -74,7 +76,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: playground
+    environment: develop
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -82,21 +84,22 @@ jobs:
       # Authentication via credentials json
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v0'
+        uses: google-github-actions/auth@v0
         with:
-          project_id: '${{ env.GCP_PROJECT_ID }}'
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       # Build image on Google Cloud Artifact Registry
       - name: Build Docker Image
         run: |-
           gcloud builds submit \
             --quiet \
-            --timeout=20m \
-            --tag ${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
-      
+            --timeout=30m \
+            --config=cloudbuild.yml \
+            --substitutions=_GCP_ARTIFACT_REGISTRY_LOCATION=${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }},_GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }},_GCP_ARTIFACT_REGISTRY_NAME=${{ vars.GCP_ARTIFACT_REGISTRY_NAME }},_GCP_IMAGE_NAME=${{ vars.GCP_IMAGE_NAME }},_GITHUB_SHA=${{ github.sha }}
+
       # Uncomment for adding the latest tag to the latest image created
-      - name: Add 'Latest' Tag to Development Environments 
+      - name: Add 'Latest' Tag to Development Environments
         run: |-
           gcloud beta artifacts docker tags add \
             --quiet \
@@ -106,7 +109,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: playground
+    environment: develop
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -114,11 +117,11 @@ jobs:
       # Authentication via credentials json
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v0'
+        uses: google-github-actions/auth@v0
         with:
-          project_id: '${{ vars.GCP_PROJECT_ID }}'
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-      
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       # Get google kubernetes engine credentials
       - name: Get GKE Credentials
         uses: google-github-actions/get-gke-credentials@v0
@@ -126,6 +129,8 @@ jobs:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
 
-      # Restart deployment by deleting old pod
-      - name: Restart Deployment
-        run: kubectl delete pod -n ${{ env.GKE_APP_NAMESPACE }} -l app=${{ env.GKE_APP_NAME }}
+      # Install Helm chart
+      - name: Helm install
+        uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm upgrade --install --create-namespace --namespace ${{ env.GKE_APP_NAMESPACE }} --set app.environment=${{ env.GKE_APP_NAMESPACE }} --set app.release=${{ env.GKE_APP_RELEASE }}--set image.repository=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }} --set image.tag=${{ github.sha }} --set nameOverride=${{ env.GKE_APP_NAME }} --set fullnameOverride=${{ env.GKE_APP_NAME }} ${{ env.GKE_APP_NAME }} ./helm --values=./helm/values.yaml 
