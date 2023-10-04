@@ -1,6 +1,6 @@
 # A description for the application chart
 apiVersion: v2
-name: chart-app
+name: tesseract-api
 description: A Helm chart for Kubernetes
 icon: https://connect.redhat.com/sites/default/files/2021-05/helm.png
 
