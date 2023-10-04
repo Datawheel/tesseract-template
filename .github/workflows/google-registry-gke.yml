@@ -76,7 +76,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: development
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -109,7 +109,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: develop
+    environment: development
     steps:
       - name: Checkout
         uses: actions/checkout@v3
