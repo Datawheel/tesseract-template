@@ -1,4 +1,4 @@
-# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "develop" branch
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a manual trigger is done on Github
 #
 # To configure this workflow:
 #
@@ -51,7 +51,7 @@
 #      GKE_ZONE                          (Kubernetes Cluster Location)
 #
 # 6. Ensure the following files exists for Helm
-#   ./helm/values.yaml                   (Development Environment Values)
+#   ./helm/production.yaml               (Production Environment Values)
 #
 # Further reading:
 #   Cloud Run IAM permissions                 - https://cloud.google.com/run/docs/deploying
@@ -59,11 +59,15 @@
 #   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 #   Deploy CloudRun Github Actions            - https://github.com/google-github-actions/deploy-cloudrun
-name: Build a Development Artifact and Deploy using Helm
+name: Build a Production Artifact and Deploy using Helm
 
 on:
-  push:
-    branches: [ "develop" ]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Production release tag'
+        required: true
+        type: string
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -71,7 +75,6 @@ env:
   GCP_ARTIFACT_REGISTRY_LOCATION: ${{ vars.GCP_ARTIFACT_REGISTRY_LOCATION }}
   GCP_IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
   GKE_APP_NAME: ${{ vars.GKE_APP_NAME }}
-  GKE_APP_RELEASE: ${{ vars.GKE_APP_RELEASE }}
   GKE_APP_NAMESPACE: ${{ vars.GKE_APP_NAMESPACE }}
   GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
   GKE_ZONE: ${{ vars.GKE_ZONE }}
@@ -79,7 +82,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: development
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -102,7 +105,7 @@ jobs:
             --substitutions=_GCP_ARTIFACT_REGISTRY_LOCATION=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }},_GCP_PROJECT_ID=${{ env.GCP_PROJECT_ID }},_GCP_ARTIFACT_REGISTRY_NAME=${{ env.GCP_ARTIFACT_REGISTRY_NAME }},_GCP_IMAGE_NAME=${{ env.GCP_IMAGE_NAME }},_GITHUB_SHA=${{ github.sha }}
 
       # Uncomment for adding the latest tag to the latest image created
-      - name: Add 'Latest' Tag to Development Environments
+      - name: Add 'Latest' Tag to Production Environments
         run: |-
           gcloud beta artifacts docker tags add \
             --quiet \
@@ -112,7 +115,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: development
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -136,4 +139,4 @@ jobs:
       - name: Helm install
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install --create-namespace --namespace ${{ env.GKE_APP_NAMESPACE }} --set app.environment=${{ env.GKE_APP_NAMESPACE }} --set app.release=${{ env.GKE_APP_RELEASE }} --set image.repository=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }} --set image.tag=${{ github.sha }} --set nameOverride=${{ env.GKE_APP_NAME }} --set fullnameOverride=${{ env.GKE_APP_NAME }} ${{ env.GKE_APP_NAME }} ./helm --values=./helm/values.yaml 
+          exec: helm upgrade --install --create-namespace --namespace ${{ env.GKE_APP_NAMESPACE }} --set app.environment=${{ env.GKE_APP_NAMESPACE }} --set app.release=${{ inputs.release }} --set image.repository=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }} --set image.tag=${{ github.sha }} --set nameOverride=${{ env.GKE_APP_NAME }} --set fullnameOverride=${{ env.GKE_APP_NAME }} ${{ env.GKE_APP_NAME }} ./helm --values=./helm/production.yaml 
