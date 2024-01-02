@@ -19,7 +19,8 @@ RUN useradd -m -r tesseract &&\
     pip install --no-cache-dir -r requirements.txt
 
 # transfer app files
-COPY . .
+COPY --chown=tesseract:tesseract  . .
+RUN chown -R tesseract $APP_HOME
 
 # define git hash
 ARG GIT_HASH
