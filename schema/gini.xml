@@ -2,7 +2,6 @@
     <Cube name="Gini">
     
         <Table name="gini"/>
-            
         <Dimension name="Exporter" foreign_key="oec_id">
             <Hierarchy name="Country">
                 <Table name="dim_country" />
