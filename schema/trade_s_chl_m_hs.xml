@@ -1,0 +1,78 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <Cube name="trade_s_chl_m_hs" min_auth_level="2">
+        <Annotation name="source_name">Portal de Datos Público</Annotation>
+        <Annotation name="source_description">Monthly trade data for Chile</Annotation>
+        <Annotation name="dataset_name">Informe Mensual de Comercio Exterior</Annotation>
+        <Annotation name="dataset_link">http://datos.gob.cl/</Annotation>
+        <!-- <Annotation name="topic">National</Annotation> -->
+        <!-- <Annotation name="subtopic">Chile</Annotation> -->
+        <!-- <Annotation name="table">Product</Annotation> -->
+
+        <Table name="trade_s_chl_m_hs" primary_key="country_id" />
+
+        <DimensionUsage name="Partner" source="Geography" foreign_key="country_id" type="geo" />
+        <DimensionUsage name="Trade Flow" source="Trade Flow" foreign_key="trade_flow_id" />
+        <DimensionUsage name="Time" source="Subnational Time" foreign_key="time_id" type="time" />
+        <DimensionUsage name="Product" source="Subnational HS6 Product" foreign_key="hs_master_id" />
+        <DimensionUsage name="Unit" source="Shared Units" foreign_key="unit_id" />
+
+        <Dimension name="Transport Mode" foreign_key="transport_id">
+            <Hierarchy name="Transport Mode">
+                <Table name="dim_chl_transport_modes" />
+                <Level name="Transport Mode"  key_column="transport_id" name_column="transport_name" key_type="nontext">
+                    <Property name="Transport Mode ES" key_column="transport_name" caption_set="es" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Dimension name="Subnat Geography" foreign_key="commune_id" type="geo">
+            <Hierarchy name="Subnat Geography">
+                <Table name="dim_chl_communes" />
+                <Level name="Region"  key_column="region_id" name_column="region_name" key_type="nontext">
+                    <Property name="Region ES" key_column="region_name" caption_set="es" />
+                </Level>
+                <Level name="Subnat Geography"  key_column="commune_id" name_column="commune_name" key_type="nontext">
+                    <Annotation name="level">Commune</Annotation>
+                    <Property name="Commune ES" key_column="commune_name" caption_set="es" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Dimension name="Origin Port" foreign_key="origin_port_id">
+            <Hierarchy name="Origin Port">
+                <Table name="dim_chl_ports_of_entry" />
+                <Level name="Origin Port"  key_column="port_id" name_column="port_name" key_type="nontext">
+                    <Property name="Origin Port Country ID" key_column="country_id" />
+                    <Property name="Origin Port ES" key_column="port_name" caption_set="es" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Dimension name="Destination Port" foreign_key="destination_port_id">
+            <Hierarchy name="Destination Port">
+                <Table name="dim_chl_ports_of_entry" />
+                <Level name="Destination Port"  key_column="port_id" name_column="port_name" key_type="nontext">
+                    <Property name="Destination Port Country ID" key_column="country_id" />
+                    <Property name="Destination Port ES" key_column="port_name" caption_set="es" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Dimension name="Payment Type" foreign_key="payment_type_id">
+            <Hierarchy name="Payment Type">
+                <Table name="dim_chl_payment_types" />
+                <Level name="Payment Type"  key_column="payment_type_id" name_column="payment_type_en" key_type="nontext">
+                    <Property name="Payment Type ES" key_column="payment_type_es" caption_set="es" />
+                </Level>
+            </Hierarchy>
+        </Dimension>
+
+        <Measure name="Trade Value" key_column="value" aggregator="sum">
+            <Annotation name="units_of_measurement">USD</Annotation>
+        </Measure>
+        <Measure name="Quantity" key_column="quantity" aggregator="sum" />
+        <Measure name="Weight" key_column="weight_kg" aggregator="sum">
+          <Annotation name="units_of_measurement">Kg</Annotation>
+        </Measure>
+    </Cube>
+</Schema>

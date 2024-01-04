@@ -1,0 +1,20 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <SharedDimension name="Subnational Time">
+        <Hierarchy name="Time">
+            <Table name="dim_shared_time" />
+
+            <Level name="Year" key_column="year">
+                <Annotation name="level">Year</Annotation>
+            </Level>
+            <Level name="Quarter" key_column="quarter" name_column="quarter_name">
+                <Annotation name="level">Quarter</Annotation>
+            </Level>
+            <Level name="Month" key_column="month" name_column="month_name">
+                <Annotation name="level">Month</Annotation>
+            </Level>
+            <Level name="Time" key_column="time_id">
+                <Annotation name="level">Time</Annotation>
+            </Level>
+        </Hierarchy>
+    </SharedDimension>
+</Schema>

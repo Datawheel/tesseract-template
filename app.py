@@ -38,11 +38,11 @@ def route_index():
 olap = OlapServer(backend=olap_backend, schema=olap_schema)
 
 tsrc = TesseractModule(olap)
-# cmplx = EconomicComplexityModule(olap)
+cmplx = EconomicComplexityModule(olap)
 
 layer = LogicLayer(debug=bool(app_debug))
 layer.add_module("/tesseract", tsrc)
-# layer.add_module("/complexity", cmplx)
+layer.add_module("/complexity", cmplx)
 layer.add_static("/ui", "./dataexplorer/", html=True)
 layer.add_route("/", route_index, response_class=HTMLResponse)
 

@@ -1,0 +1,15 @@
+<Schema name="tesseract-api" default_locale="en">
+    <SharedDimension name="Geography">
+        <Hierarchy name="Geography">
+            <Table name="dim_shared_countries" />
+            <Level name="Continent" key_column="continent_id" name_column="continent_name" key_type="str">
+                <LocalizedAttr attr="name_column" locale="en" value="continent_name" />
+                <LocalizedAttr attr="name_column" locale="es" value="continent_name_es" />
+            </Level>
+            <Level name="Country" key_column="oec_id" name_column="name_en" key_type="str">
+                <Property name="ISO 2" key_column="id_2char" />
+                <Property name="ISO 3" key_column="id_3char" />
+            </Level>
+        </Hierarchy>
+    </SharedDimension>
+</Schema>

@@ -1,0 +1,15 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <Cube name="Gini">
+    
+        <Table name="gini"/>
+        <Dimension name="Exporter" foreign_key="oec_id">
+            <Hierarchy name="Country">
+                <Table name="dim_country" />
+                    <Level key_column="continent_id" name="Continent" name_column="continent" key_type="str" />
+                    <Level key_column="geo_id" name="Exporter" name_column="country" key_type="str" />
+            </Hierarchy>
+        </Dimension>
+         
+        <Measure name="Gini Index" key_column="gini" aggregator="avg"/>
+    </Cube>
+</Schema>

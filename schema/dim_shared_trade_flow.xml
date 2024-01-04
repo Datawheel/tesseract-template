@@ -1,0 +1,8 @@
+<Schema name="tesseract-api" default_locale="en"> 
+    <SharedDimension name="Trade Flow">
+        <Hierarchy name="Trade Flow">
+            <Table name="dim_shared_trade_flow" />
+            <Level name="Trade Flow" key_column="trade_flow_id" name_column="trade_flow_name" />
+        </Hierarchy>
+    </SharedDimension>
+</Schema>
