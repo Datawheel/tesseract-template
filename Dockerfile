@@ -1,42 +1,42 @@
 FROM python:3.9
 
-# install required dependencies
+# Install api pre requirements
 RUN pip install -U pip setuptools wheel
 
-# allow statements and log messages to immediately appear in the Knative logs
-ENV PYTHONUNBUFFERED True
-
-# define work directory
+# Define api directory
 ENV APP_HOME /usr/src/app
 WORKDIR $APP_HOME
 
-# transfer python requirements
+# Allow that statements and log messages appear in the Knative logs
+ENV PYTHONUNBUFFERED True
+
+# Transfer api requirements
 COPY requirements.txt ./
 
-# install python requirements on environment
+# Install api requirements
 RUN useradd -m -r tesseract &&\
     chown tesseract $APP_HOME &&\
     pip install --no-cache-dir -r requirements.txt
 
-# transfer app files
-COPY . .
+# Transfer app files
+COPY --chown=tesseract:tesseract  . .
+RUN chown -R tesseract $APP_HOME
 
-# define git hash
+# Define api required env vars
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH:-dev}
 
-# change user to tesseract user
+# Change unix user to tesseract
 USER tesseract
 
-# expose the required port
+# Expose api port
 ENV PORT 7777
 EXPOSE 7777
 
-# setup host and port for cloudrun
+# Setup host and port
+# Uncomment this line for a cloudrun instance
 #ENV HOST 0.0.0.0
 
-# define startup commands
-# CMD ["python", "app.py"]
-
+# Define startup commands
 CMD ["app.py"]
 ENTRYPOINT ["python"]

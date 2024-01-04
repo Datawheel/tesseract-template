@@ -7,18 +7,18 @@ imagePullSecrets:
 replicaCount: 1
 
 autoscaling:
-  enabled: false
-  # minReplicas: 1
-  # maxReplicas: 10
-  # targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 120
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 120
 
 resources:
   requests:
-    cpu: 500m
+    cpu: 250m
     memory: 1Gi
   limits:
-    cpu: 1000m
+    cpu: 500m
     memory: 4Gi
 
 livenessProbe:
@@ -27,9 +27,9 @@ livenessProbe:
     path: /
     port: 7777
     scheme: HTTP
-  initialDelaySeconds: 15
-  periodSeconds: 10
-  timeoutSeconds: 10
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 30
   successThreshold: 1
 
 readinessProbe:
@@ -38,9 +38,9 @@ readinessProbe:
     path: /
     port: 7777
     scheme: HTTP
-  initialDelaySeconds: 15
-  periodSeconds: 10
-  timeoutSeconds: 10
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 30
   successThreshold: 2
 
 service:
@@ -60,8 +60,8 @@ configMap:
   TESSERACT_DEBUG: "true"
   TESSERACT_SCHEMA: "schema"
 
-secrets:
-  TESSERACT_BACKEND: <BASE64-DATABASE-CONNECTOR-STRING>
+# secrets:
+#   TESSERACT_BACKEND: <BASE64-DATABASE-CONNECTOR-STRING>
 
 ingress:
   enabled: true
@@ -77,10 +77,10 @@ ingress:
     nginx.org/location-snippets: |
       add_header Access-Control-Allow-Origin *;
   hosts:
-    - host: <TESSERACT-API-DNS>
+    - host: <TESSERACT-API-DEV-DNS>
       paths:
         - /
   tls:
     - secretName: tesseract-api-ingress-tls
       hosts: 
-        - <TESSERACT-API-DNS>
+        - <TESSERACT-API-DEV-DNS>
