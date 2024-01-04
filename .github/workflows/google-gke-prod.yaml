@@ -129,7 +129,7 @@ jobs:
               --set app.environment=${{ env.GKE_APP_NAMESPACE }} \
               --set app.release=${{ env.GKE_APP_NAMESPACE }} \
               --set image.repository=${{ env.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.GCP_IMAGE_NAME }} \
-              --set image.tag=${{ github.sha }} \
+              --set image.tag=${{ inputs.release }} \
               --set nameOverride=${{ env.GKE_APP_NAME }} \
               --set fullnameOverride=${{ env.GKE_APP_NAME }} \
               --set secrets.TESSERACT_BACKEND=$ENCODED_TESSERACT_BACKEND \
