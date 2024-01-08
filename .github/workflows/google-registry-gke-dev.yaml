@@ -122,10 +122,10 @@ jobs:
       # Authentication via credentials json
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v2'
+        uses: google-github-actions/auth@v2
         with:
-          project_id: '${{ vars.GCP_PROJECT_ID }}'
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
       
       # Get google kubernetes engine credentials
       - name: Get GKE Credentials
@@ -167,10 +167,10 @@ jobs:
       # Authentication via credentials json
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v2'
+        uses: google-github-actions/auth@v2
         with:
-          project_id: '${{ vars.GCP_PROJECT_ID }}'
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
       
       # Get google kubernetes engine credentials
       - name: Get GKE Credentials
