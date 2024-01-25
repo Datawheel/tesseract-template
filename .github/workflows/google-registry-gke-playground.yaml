@@ -63,7 +63,7 @@ on:
     branches: [ "tesseract-python" ]
     paths:
       - .github/workflows/google-registry-gke-playground.yaml
-      - helm/development.yaml
+      - helm/playground.yaml
       - schema/**
 
 env:
@@ -153,7 +153,7 @@ jobs:
               --set nameOverride=${{ env.GKE_APP_NAME }} \
               --set fullnameOverride=${{ env.GKE_APP_NAME }} \
               --set secrets.TESSERACT_BACKEND=$ENCODED_TESSERACT_BACKEND \
-              ${{ env.GKE_APP_NAME }} --values=./helm/development.yaml ./helm
+              ${{ env.GKE_APP_NAME }} --values=./helm/playground.yaml ./helm
   
   update:
     runs-on: ubuntu-latest
@@ -198,4 +198,4 @@ jobs:
               --set nameOverride=${{ env.GKE_APP_NAME }} \
               --set fullnameOverride=${{ env.GKE_APP_NAME }} \
               --set secrets.TESSERACT_BACKEND=$ENCODED_TESSERACT_BACKEND \
-              ${{ env.GKE_APP_NAME }} --values=./helm/development.yaml ./helm
+              ${{ env.GKE_APP_NAME }} --values=./helm/playground.yaml ./helm
