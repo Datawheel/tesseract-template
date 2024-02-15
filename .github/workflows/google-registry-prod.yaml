@@ -61,8 +61,6 @@ name: "[GCP][PROD] Build API to Google Registry"
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - schema/**
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
