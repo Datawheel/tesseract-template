@@ -63,6 +63,7 @@ on:
     branches: [ "main" ]
     paths:
       - schema/**
+      - requirements.txt
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
