@@ -64,6 +64,7 @@ on:
     paths:
       - .github/workflows/google-registry-gke-playground.yaml
       - helm/playground.yaml
+      - requirements.txt
       - schema/**
 
 env:
