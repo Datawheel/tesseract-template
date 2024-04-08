@@ -1,7 +1,6 @@
 import logging.config
 import os
 
-import uvicorn
 from logiclayer import LogicLayer
 from logiclayer_complexity import EconomicComplexityModule
 from tesseract_olap import OlapServer
@@ -45,9 +44,3 @@ layer.add_module("/tesseract", tsrc)
 layer.add_module("/complexity", cmplx)
 layer.add_static("/ui", "./dataexplorer/", html=True)
 layer.add_route("/", route_index, response_class=HTMLResponse)
-
-# use "app:layer" if running uvicorn or gunicorn from CLI directly
-if __name__ == "__main__":
-    uvicorn.run(layer, host=app_host, 
-                       port=int(app_port),
-                       proxy_headers=True)
