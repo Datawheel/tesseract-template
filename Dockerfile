@@ -30,13 +30,8 @@ ENV GIT_HASH=${GIT_HASH:-dev}
 USER tesseract
 
 # Expose api port
-ENV GRANIAN_PORT 7777
 EXPOSE 7777
 
-# Setup host and port
-# Uncomment this line for a cloudrun instance
-#ENV GRANIAN_HOST 0.0.0.0
-
 # Define startup commands
-CMD ["--interface", "asgi", "--respawn-failed-workers", "app:layer"]
+CMD ["--interface", "asgi", "--host", "127.0.0.1", "--port", "7777", "--respawn-failed-workers", "app:layer"]
 ENTRYPOINT ["granian"]
