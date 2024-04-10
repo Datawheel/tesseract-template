@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse
 # PARAMETERS ===================================================================
 olap_backend = os.environ["TESSERACT_BACKEND"] # raise KeyError if not set
 olap_schema  = os.environ["TESSERACT_SCHEMA"]
+olap_cache   = os.environ.get("TESSERACT_CACHE", ":memory:")
 app_debug    = os.environ.get("TESSERACT_DEBUG", None)
 app_host     = os.environ.get("TESSERACT_HOST", "0.0.0.0")
 app_port     = os.environ.get("TESSERACT_PORT", "7777")
@@ -34,7 +35,7 @@ def route_index():
 """
 
 # CLI RUNNER ===================================================================
-olap = OlapServer(backend=olap_backend, schema=olap_schema)
+olap = OlapServer(backend=olap_backend, schema=olap_schema, cache=olap_cache)
 
 tsrc = TesseractModule(olap)
 cmplx = EconomicComplexityModule(olap)

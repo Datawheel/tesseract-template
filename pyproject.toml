@@ -1,16 +1,19 @@
 [tool.poetry]
 name = "tesseract-olap-demo"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
-authors = ["Francisco Abarzua <git.id@frabarz.cl>"]
+authors = [
+  "Francisco Abarzua <francisco@datawheel.us>",
+  "Samuel Osorio <samuel@datawheel.us>",
+]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
 granian = "^1.1.2"
-logiclayer = "^0.2.1"
-logiclayer-complexity = "^0.4.1"
-tesseract-olap = {extras = ["clickhouse"], version = "^0.8.0"}
+logiclayer = "^0.3.0"
+logiclayer-complexity = "^0.5.0"
+tesseract-olap = {extras = ["clickhouse", "redis"], version = "^0.9.2"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
