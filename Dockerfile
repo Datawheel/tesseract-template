@@ -33,5 +33,5 @@ USER tesseract
 EXPOSE 7777
 
 # Define startup commands
-CMD ["--interface", "asgi", "--host", "127.0.0.1", "--port", "7777", "--respawn-failed-workers", "app:layer"]
+CMD ["--interface", "asgi", "--host", "0.0.0.0", "--port", "7777", "--respawn-failed-workers", "app:layer"]
 ENTRYPOINT ["granian"]
