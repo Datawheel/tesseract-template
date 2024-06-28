@@ -1,4 +1,6 @@
 .git
+.github
+build-explorer
 dist
 node_modules
 vendor

@@ -1,37 +1,34 @@
-FROM python:3.12
+FROM python:3.10 as builder
 
-# Install api pre requirements
-RUN pip install -U pip setuptools wheel
+RUN pip install setuptools wheel poetry==1.8.3
 
-# Define api directory
-ENV APP_HOME /usr/src/app
-WORKDIR $APP_HOME
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-# Allow that statements and log messages appear in the Knative logs
-ENV PYTHONUNBUFFERED True
+WORKDIR /app
 
-# Transfer api requirements
-COPY requirements.txt ./
+COPY pyproject.toml poetry.lock ./
+RUN touch README.md
 
-# Install api requirements
-RUN useradd -m -r tesseract &&\
-    chown tesseract $APP_HOME &&\
-    pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-# Transfer app files
-COPY --chown=tesseract:tesseract  . .
-RUN chown -R tesseract $APP_HOME
+FROM python:3.10-slim-buster as runtime
 
-# Define api required env vars
-ARG GIT_HASH
-ENV GIT_HASH=${GIT_HASH:-dev}
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
 
-# Change unix user to tesseract
+# create runtime user; install required dependencies
+RUN useradd --system --uid 1001 tesseract
+
+WORKDIR /app
+
+COPY --chown=tesseract --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+COPY --chown=tesseract . /app
+
+# change user to tesseract user
 USER tesseract
 
-# Expose api port
-EXPOSE 7777
-
-# Define startup commands
-CMD ["--interface", "asgi", "--host", "0.0.0.0", "--port", "7777", "--respawn-failed-workers", "app:layer"]
-ENTRYPOINT ["granian"]
+CMD exec granian --interface asgi --host 0.0.0.0 --port 7777 --respawn-failed-workers app:layer
