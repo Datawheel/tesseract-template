@@ -60,12 +60,13 @@ name: "[GCP][DEV] Build API to Registry and Deploy via Helm"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "tesseract-python" ]
     paths:
       - .github/workflows/google-registry-gke-playground.yaml
       - helm/playground.yaml
-      - requirements.txt
+      - poetry.lock
       - schema/**
+      - app/**
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -86,7 +87,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '#update') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Authentication via credentials json
       - name: Google Auth
@@ -95,7 +96,7 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      
+
       # Install Cloud SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
@@ -127,14 +128,14 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      
+
       # Get google kubernetes engine credentials
       - name: Get GKE Credentials
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
-      
+
       # Transform GitHub secrets to base64 encoded
       - name: Set encoded secret values
         run: |
@@ -155,7 +156,7 @@ jobs:
               --set fullnameOverride=${{ env.GKE_APP_NAME }} \
               --set secrets.TESSERACT_BACKEND=$ENCODED_TESSERACT_BACKEND \
               ${{ env.GKE_APP_NAME }} --values=./helm/playground.yaml ./helm
-  
+
   update:
     runs-on: ubuntu-latest
     environment: playground
@@ -172,14 +173,14 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      
+
       # Get google kubernetes engine credentials
       - name: Get GKE Credentials
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
-      
+
       # Transform GitHub secrets to base64 encoded
       - name: Set encoded secret values
         run: |
