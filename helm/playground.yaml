@@ -1,0 +1,86 @@
+image:
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: github
+
+replicaCount: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 120
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    cpu: 500m
+    memory: 4Gi
+
+livenessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /
+    port: 7777
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 30
+  successThreshold: 1
+
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /
+    port: 7777
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 30
+  successThreshold: 2
+
+service:
+  type: ClusterIP
+  port: 7777
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+configMap:
+  TESSERACT_DEBUG: "true"
+  TESSERACT_SCHEMA: "schema"
+
+# secrets:
+#   TESSERACT_BACKEND: <BASE64-DATABASE-CONNECTOR-STRING>
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.org/proxy-connect-timeout: "120s"
+    nginx.org/proxy-read-timeout: "120s"
+    nginx.org/proxy-buffers: "8 16k"
+    nginx.org/proxy-buffer-size: "16k"
+    nginx.org/proxy-busy-buffers-size: "64k"
+    nginx.org/location-snippets: |
+      add_header Access-Control-Allow-Origin *;
+  hosts:
+    - host: playground.api.datawheel.us
+      paths:
+        - /
+  tls:
+    - secretName: tesseract-api-ingress-tls
+      hosts: 
+        - playground.api.datawheel.us
