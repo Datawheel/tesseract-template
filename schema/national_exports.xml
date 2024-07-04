@@ -2,7 +2,7 @@
     <Cube name="National Exports">
     
         <Table name="national_exports"/>
-        <Dimension foreign_key="year" name="Year">
+        <Dimension foreign_key="year" name="Year" type="time">
             <Hierarchy name="Year">
                 <Level name="Year" key_column="year" key_type="i16"/>
             </Hierarchy>

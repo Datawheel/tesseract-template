@@ -1,7 +1,8 @@
-.github
+.github/
+build-explorer/
+helm/
 *.md
 *.env
 *.gcp.json
 *.gcp.encoded
 Dockerfile
-kubernetes/
