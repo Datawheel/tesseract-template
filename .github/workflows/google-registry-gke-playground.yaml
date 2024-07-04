@@ -60,7 +60,7 @@ name: "[GCP][DEV] Build API to Registry and Deploy via Helm"
 
 on:
   push:
-    branches: [ "tesseract-python" ]
+    branches: [ "main" ]
     paths:
       - .github/workflows/google-registry-gke-playground.yaml
       - helm/playground.yaml
