@@ -67,6 +67,7 @@ on:
       - poetry.lock
       - schema/**
       - app/**
+      - Dockerfile
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
