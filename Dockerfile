@@ -2,6 +2,8 @@ FROM python:3.10 as builder
 
 RUN pip install setuptools wheel poetry==1.8.3
 
+ENV DOCKER_BUILDKIT=1
+
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_VIRTUALENVS_CREATE=1 \
