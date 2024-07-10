@@ -13,6 +13,8 @@ steps:
       "--cache-from", "${_GCP_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_GCP_ARTIFACT_REGISTRY_NAME}/${_GCP_IMAGE_NAME}:${_GCP_IMAGE_ENVIRONMENT}",
       "."
     ]
+    env:
+      - "DOCKER_BUILDKIT=1"
   # [END cloudbuild_image_yaml]
 images:
   - "${_GCP_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_GCP_ARTIFACT_REGISTRY_NAME}/${_GCP_IMAGE_NAME}:${_GCP_IMAGE_TAG}"

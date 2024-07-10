@@ -5,5 +5,3 @@ node_modules/
 
 # environment variables
 .env.*
-
-poetry.lock
