@@ -19,10 +19,11 @@ FROM python:3.10-slim-buster as runtime
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
-# create runtime user; install required dependencies
-RUN useradd --system --uid 1001 tesseract
-
 WORKDIR /app
+
+# create runtime user; install required dependencies
+RUN useradd --system --uid 1001 tesseract &&\
+    chown -R tesseract:tesseract /app
 
 COPY --chown=tesseract --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
