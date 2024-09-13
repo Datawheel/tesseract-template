@@ -1,4 +1,6 @@
-FROM ubuntu:noble as builder
+FROM ubuntu:mantic as builder
+
+# To use python3.10, switch to ubuntu:jammy
 
 RUN <<EOT
 apt-get update -qy
@@ -40,25 +42,30 @@ EOT
 
 # ============================================================================ #
 
-FROM ubuntu:noble as runtime
+FROM ubuntu:mantic as runtime
 
+# Include virtual environment in PATH
 ENV PATH=/app/bin:$PATH
 
+# Create the runtime user and group
 RUN <<EOT
 groupadd -r tesseract
 useradd --system --home /app --gid tesseract --no-user-group tesseract
 EOT
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["tini", "-v", "--", "/docker-entrypoint.sh"]
 
 # See <https://hynek.me/articles/docker-signals/>.
 STOPSIGNAL SIGINT
 
+# Update OS packages, then clear APT cache and lists
 RUN <<EOT
 apt-get update -qy
 apt-get install -qyy \
     -o APT::Install-Recommends=false \
     -o APT::Install-Suggests=false \
+    ca-certificates \
+    tini \
     python3.12 \
     libpython3.12 \
     libpcre3 \
@@ -68,18 +75,23 @@ apt-get clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 EOT
 
-COPY logging.ini /app/etc/logging.ini
+# Copy runtime files
+COPY docker-entrypoint.sh /
+COPY etc /app/etc
 
 COPY --from=builder --chown=tesseract:tesseract /app /app
-
 COPY --chown=tesseract:tesseract ./app.py /app/app.py
-COPY --chown=tesseract:tesseract ./server /app/server
 
+# Replace runtime user and cwd
 USER tesseract
 WORKDIR /app
 
+# Tests to ensure correct configuration and permissions
 RUN <<EOT
 python -V
 python -Im site
-python -Ic 'import app'
+python -Ic 'import server'
+ls -l /docker-entrypoint.sh
+ls -la /app
+ls -l /app/etc
 EOT
