@@ -7,19 +7,19 @@ from logiclayer_complexity import EconomicComplexityModule
 from tesseract_olap import OlapServer
 from tesseract_olap.logiclayer import TesseractModule
 
-from .debug import DebugModule
+from server.debug import DebugModule
 
 
 # PARAMETERS ===================================================================
 
 # These parameters are required and will prevent execution if not set
 olap_backend = os.environ["TESSERACT_BACKEND"]
-olap_schema  = os.environ["TESSERACT_SCHEMA"]
 
 # These parameters are optional
-olap_cache = os.environ.get("TESSERACT_CACHE", ":memory:")
+olap_schema  = os.environ.get("TESSERACT_SCHEMA", "/app/server/schema")
+olap_cache = os.environ.get("TESSERACT_CACHE", "")
 app_debug = os.environ.get("TESSERACT_DEBUG", None)
-log_filepath = os.environ.get("TESSERACT_LOGGING_CONFIG", "logging.ini")
+log_filepath = os.environ.get("TESSERACT_LOGGING_CONFIG", "/app/logging.ini")
 commit_hash = os.environ.get("GIT_HASH", "")
 
 app_debug = bool(app_debug)
@@ -51,7 +51,7 @@ if app_debug:
 
 layer.add_module("/tesseract", mod_tsrc)
 layer.add_module("/complexity", mod_cmplx)
-layer.add_static("/ui", "./explorer/", html=True)
+layer.add_static("/ui", "./server/explorer/", html=True)
 
 @layer.route("/", response_class=RedirectResponse, status_code=302)
 def route_index():
