@@ -83,8 +83,8 @@ env:
 jobs:
   build:
     environment: playground
-    runs-on: ubuntu-latest
-    # runs-on: self-hosted
+    runs-on: self-hosted
+    # runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, '#update') }}
     steps:
       - name: Checkout
@@ -124,8 +124,8 @@ jobs:
   deploy:
     needs: build
     environment: playground
-    runs-on: ubuntu-latest
-    # runs-on: self-hosted
+    runs-on: self-hosted
+    # runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -167,9 +167,9 @@ jobs:
               ${{ env.GKE_APP_NAME }} --values=./helm/playground.yaml ./helm
 
   update:
-    runs-on: ubuntu-latest
     environment: playground
-    # runs-on: self-hosted
+    runs-on: self-hosted
+    # runs-on: ubuntu-latest
     if: ${{ contains(github.event.head_commit.message, '#update') }}
     steps:
       - name: Checkout
